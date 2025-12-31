@@ -88,6 +88,26 @@ func (s *RecordService) GenerateScript(name string) (string, error) {
 	return script, nil
 }
 
+// GenerateCurrentScript 生成当前已录制事件的脚本
+func (s *RecordService) GenerateCurrentScript() (string, error) {
+	events := s.GetEvents()
+	if len(events) == 0 {
+		return "", nil // 没有事件时返回空字符串，不报错
+	}
+
+	// 优化事件
+	optimizedEvents := s.generator.OptimizeEvents(events)
+
+	// 生成脚本
+	// 使用临时名称 "temp"，因为用户还没有保存
+	script, err := s.generator.Generate("temp", optimizedEvents)
+	if err != nil {
+		return "", fmt.Errorf("failed to generate script: %w", err)
+	}
+
+	return script, nil
+}
+
 // IsStarted 检查是否已开始录制
 func (s *RecordService) IsStarted() bool {
 	s.mutex.RLock()

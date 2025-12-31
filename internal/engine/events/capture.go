@@ -5,7 +5,6 @@ import (
 	"sync"
 	"time"
 
-	"github.com/go-vgo/robotgo"
 	"github.com/robotn/gohook"
 	"github.com/issueye/macro_operation/internal/model"
 )
@@ -41,13 +40,9 @@ func (c *Capture) Start() error {
 	c.isRunning = true
 	c.eventBuffer = make([]model.Event, 0, 10000)
 
-	// 启动键盘监听
+	// 启动事件监听（统一处理键盘和鼠标事件）
 	c.wg.Add(1)
-	go c.startKeyboardHook()
-
-	// 启动鼠标监听
-	c.wg.Add(1)
-	go c.startMouseHook()
+	go c.startEventCapture()
 
 	// 启动事件处理
 	c.wg.Add(1)
@@ -56,11 +51,14 @@ func (c *Capture) Start() error {
 	return nil
 }
 
-// startKeyboardHook 启动键盘钩子
-func (c *Capture) startKeyboardHook() {
+// startEventCapture 统一处理键盘和鼠标事件
+func (c *Capture) startEventCapture() {
 	defer c.wg.Done()
 
 	evChan := hook.Start()
+
+	var lastX, lastY int
+	var isDragging bool
 
 	for {
 		select {
@@ -71,61 +69,115 @@ func (c *Capture) startKeyboardHook() {
 				return
 			}
 
-			switch ev.Kind {
-			case hook.KeyDown:
-				c.keyboardChan <- model.KeyboardEvent{
-					Type:      model.KeyDown,
-					Keycode:   ev.Keychar,
-					Keyname:   string(rune(ev.Keychar)),
-					Timestamp: time.Now(),
+			x, y := int(ev.X), int(ev.Y)
+			currentTime := time.Now()
+
+			// 根据事件类型分发处理
+			switch {
+			// 处理键盘事件
+			case ev.Kind >= hook.KeyDown && ev.Kind <= hook.KeyHold:
+				// 检查修饰键
+				var modifiers []string
+				if ev.Mask&0x0100 != 0 || ev.Mask&0x11 != 0 {
+					modifiers = append(modifiers, "Ctrl")
 				}
-			case hook.KeyUp:
-				c.keyboardChan <- model.KeyboardEvent{
-					Type:      model.KeyUp,
-					Keycode:   ev.Keychar,
-					Keyname:   string(rune(ev.Keychar)),
-					Timestamp: time.Now(),
+				if ev.Mask&0x0200 != 0 || ev.Mask&0x10 != 0 {
+					modifiers = append(modifiers, "Shift")
 				}
-			case hook.KeyHold:
-				c.keyboardChan <- model.KeyboardEvent{
-					Type:      model.KeyPress,
-					Keycode:   ev.Keychar,
-					Keyname:   string(rune(ev.Keychar)),
-					Timestamp: time.Now(),
+				if ev.Mask&0x0400 != 0 || ev.Mask&0x12 != 0 {
+					modifiers = append(modifiers, "Alt")
+				}
+				if ev.Mask&0x0800 != 0 || ev.Mask&0x5B != 0 {
+					modifiers = append(modifiers, "Win")
+				}
+
+				switch ev.Kind {
+				case hook.KeyDown:
+					c.keyboardChan <- model.KeyboardEvent{
+						Type:      model.KeyDown,
+						Keycode:   ev.Keychar,
+						Keyname:   string(rune(ev.Keychar)),
+						Timestamp: currentTime,
+						Modifiers: modifiers,
+					}
+				case hook.KeyUp:
+					c.keyboardChan <- model.KeyboardEvent{
+						Type:      model.KeyUp,
+						Keycode:   ev.Keychar,
+						Keyname:   string(rune(ev.Keychar)),
+						Timestamp: currentTime,
+						Modifiers: modifiers,
+					}
+				case hook.KeyHold:
+					c.keyboardChan <- model.KeyboardEvent{
+						Type:      model.KeyPress,
+						Keycode:   ev.Keychar,
+						Keyname:   string(rune(ev.Keychar)),
+						Timestamp: currentTime,
+						Modifiers: modifiers,
+					}
+				}
+
+			// 处理鼠标事件
+			case ev.Kind >= hook.MouseDown && ev.Kind <= hook.MouseWheel:
+				// 处理鼠标移动事件
+				if x != lastX || y != lastY {
+					if isDragging {
+						c.mouseChan <- model.MouseEvent{
+							Type:      model.MouseDrag,
+							X:         x,
+							Y:         y,
+							Button:    "left",
+							Timestamp: currentTime,
+						}
+					} else {
+						c.mouseChan <- model.MouseEvent{
+							Type:      model.MouseMove,
+							X:         x,
+							Y:         y,
+							Timestamp: currentTime,
+						}
+					}
+					lastX, lastY = x, y
+				}
+
+				// 处理鼠标按钮事件
+				switch ev.Kind {
+				case hook.MouseDown:
+					button := "left"
+					if ev.Button == 3 {
+						button = "right"
+					} else if ev.Button == 2 {
+						button = "middle"
+					}
+
+					c.mouseChan <- model.MouseEvent{
+						Type:      model.MouseClick,
+						X:         x,
+						Y:         y,
+						Button:    button,
+						Timestamp: currentTime,
+					}
+
+					isDragging = true
+
+				case hook.MouseUp:
+					isDragging = false
+
+				case hook.MouseWheel:
+					c.mouseChan <- model.MouseEvent{
+						Type:      model.MouseScroll,
+						X:         x,
+						Y:         y,
+						Delta:     int(ev.Amount),
+						Timestamp: currentTime,
+					}
 				}
 			}
 		}
 	}
 }
 
-// startMouseHook 启动鼠标监听
-func (c *Capture) startMouseHook() {
-	defer c.wg.Done()
-
-	var lastX, lastY int
-
-	for c.isRunning {
-		select {
-		case <-c.stopChan:
-			return
-		default:
-			x, y := robotgo.GetMousePos()
-
-			// 检查鼠标移动
-			if x != lastX || y != lastY {
-				c.mouseChan <- model.MouseEvent{
-					Type:      model.MouseMove,
-					X:         x,
-					Y:         y,
-					Timestamp: time.Now(),
-				}
-				lastX, lastY = x, y
-			}
-
-			time.Sleep(20 * time.Millisecond)
-		}
-	}
-}
 
 // processEvents 处理事件流
 func (c *Capture) processEvents() {

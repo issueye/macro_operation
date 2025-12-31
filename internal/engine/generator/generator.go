@@ -86,24 +86,52 @@ func (g *Generator) generateEventCode(event model.Event) (string, error) {
 func (g *Generator) generateKeyboardCode(event model.KeyboardEvent) (string, error) {
 	var code strings.Builder
 
+	// 格式化修饰键数组
+	modifiersStr := "[]"
+	if len(event.Modifiers) > 0 {
+		modifiers := make([]string, len(event.Modifiers))
+		for i, mod := range event.Modifiers {
+			modifiers[i] = fmt.Sprintf("'%s'", mod)
+		}
+		modifiersStr = fmt.Sprintf("[%s]", strings.Join(modifiers, ", "))
+	}
+
 	switch event.Type {
 	case model.KeyDown:
-		if g.addComments {
-			code.WriteString(g.indent(fmt.Sprintf("// 按下键盘: %s\n", event.Keyname)))
+		var comment string
+		if len(event.Modifiers) > 0 {
+			comment = fmt.Sprintf("// 按下键盘: %s + %s\n", strings.Join(event.Modifiers, "+"), event.Keyname)
+		} else {
+			comment = fmt.Sprintf("// 按下键盘: %s\n", event.Keyname)
 		}
-		code.WriteString(g.indent(fmt.Sprintf("keyDown('%s');\n", event.Keyname)))
+		if g.addComments {
+			code.WriteString(g.indent(comment))
+		}
+		code.WriteString(g.indent(fmt.Sprintf("keyDown('%s', %s);\n", event.Keyname, modifiersStr)))
 
 	case model.KeyUp:
-		if g.addComments {
-			code.WriteString(g.indent(fmt.Sprintf("// 释放键盘: %s\n", event.Keyname)))
+		var comment string
+		if len(event.Modifiers) > 0 {
+			comment = fmt.Sprintf("// 释放键盘: %s + %s\n", strings.Join(event.Modifiers, "+"), event.Keyname)
+		} else {
+			comment = fmt.Sprintf("// 释放键盘: %s\n", event.Keyname)
 		}
-		code.WriteString(g.indent(fmt.Sprintf("keyUp('%s');\n", event.Keyname)))
+		if g.addComments {
+			code.WriteString(g.indent(comment))
+		}
+		code.WriteString(g.indent(fmt.Sprintf("keyUp('%s', %s);\n", event.Keyname, modifiersStr)))
 
 	case model.KeyPress:
-		if g.addComments {
-			code.WriteString(g.indent(fmt.Sprintf("// 输入文本: %s\n", event.Keyname)))
+		var comment string
+		if len(event.Modifiers) > 0 {
+			comment = fmt.Sprintf("// 输入快捷键: %s + %s\n", strings.Join(event.Modifiers, "+"), event.Keyname)
+		} else {
+			comment = fmt.Sprintf("// 输入文本: %s\n", event.Keyname)
 		}
-		code.WriteString(g.indent(fmt.Sprintf("keyTap('%s');\n", event.Keyname)))
+		if g.addComments {
+			code.WriteString(g.indent(comment))
+		}
+		code.WriteString(g.indent(fmt.Sprintf("keyTap('%s', %s);\n", event.Keyname, modifiersStr)))
 
 	default:
 		return "", fmt.Errorf("unsupported keyboard event type: %v", event.Type)

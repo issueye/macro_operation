@@ -37,3 +37,5 @@ configs/config.local.yaml
 # Coverage
 coverage.out
 coverage.html
+frontend/node_modules/*
+*.log

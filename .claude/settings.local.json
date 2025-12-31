@@ -32,7 +32,15 @@
       "Bash(npm run build:*)",
       "Bash(go get:*)",
       "Bash(go doc:*)",
-      "Bash(ls:*)"
+      "Bash(ls:*)",
+      "Bash(grep:*)",
+      "Bash(wails3 init:*)",
+      "Bash(wails doctor:*)",
+      "Bash(wails init --help:*)",
+      "Bash(wails build)",
+      "Bash(wails build:*)",
+      "Bash(go mod:*)",
+      "Bash(./wails-template.exe)"
     ]
   }
 }

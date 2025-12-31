@@ -28,6 +28,7 @@ type KeyboardEvent struct {
 	Keycode   rune
 	Keyname   string
 	Timestamp time.Time
+	Modifiers []string // 修饰键列表，如 ["Ctrl", "Shift"]
 }
 
 func (ke KeyboardEvent) GetTimestamp() time.Time {
