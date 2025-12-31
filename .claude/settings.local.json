@@ -1,0 +1,38 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(dir:*)",
+      "Bash(tree:*)",
+      "Bash(go mod tidy:*)",
+      "Bash(go build:*)",
+      "Bash(find:*)",
+      "Bash(GOWORK=off go build:*)",
+      "Bash(./bin/macro-recorder.exe:*)",
+      "Bash(.\\\\bin\\\\macro-recorder:*)",
+      "Bash(timeout:*)",
+      "Bash(bin\\\\macro-recorder.exe:*)",
+      "Bash(cmd:*)",
+      "Bash(powershell:*)",
+      "Bash(go version:*)",
+      "Bash(cmd.exe:*)",
+      "Bash(exec:*)",
+      "Bash(cat:*)",
+      "Bash(make:*)",
+      "Bash(go run:*)",
+      "WebSearch",
+      "Bash(if:*)",
+      "Bash(then mkdir docs)",
+      "Bash(fi:*)",
+      "Bash(wails3 version:*)",
+      "Bash(go install:*)",
+      "Bash(~/go/bin/wails3 version:*)",
+      "Bash(npm create vite:*)",
+      "Bash(npm install:*)",
+      "Bash(npx tailwindcss init:*)",
+      "Bash(npm run build:*)",
+      "Bash(go get:*)",
+      "Bash(go doc:*)",
+      "Bash(ls:*)"
+    ]
+  }
+}
