@@ -59,6 +59,7 @@ func (c *Capture) startEventCapture() {
 
 	var lastX, lastY int
 	var isDragging bool
+	var currentButton string // 当前按下的按钮
 
 	for {
 		select {
@@ -127,7 +128,7 @@ func (c *Capture) startEventCapture() {
 							Type:      model.MouseDrag,
 							X:         x,
 							Y:         y,
-							Button:    "left",
+							Button:    currentButton,
 							Timestamp: currentTime,
 						}
 					} else {
@@ -160,9 +161,11 @@ func (c *Capture) startEventCapture() {
 					}
 
 					isDragging = true
+					currentButton = button
 
 				case hook.MouseUp:
 					isDragging = false
+					currentButton = ""
 
 				case hook.MouseWheel:
 					c.mouseChan <- model.MouseEvent{
