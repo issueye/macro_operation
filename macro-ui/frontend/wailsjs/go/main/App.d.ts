@@ -10,6 +10,8 @@ export function GenerateScript(arg1:string):Promise<string>;
 
 export function GetEventCount():Promise<number>;
 
+export function GetRecentEvents(arg1:number):Promise<Array<main.EventInfo>>;
+
 export function IsEngineRunning():Promise<boolean>;
 
 export function IsRecording():Promise<boolean>;

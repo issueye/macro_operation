@@ -2,7 +2,7 @@
 // versions:
 // 	protoc-gen-go v1.36.11
 // 	protoc        v3.20.1
-// source: proto/macro.proto
+// source: macro.proto
 
 package macro
 
@@ -30,7 +30,7 @@ type StartRecordingRequest struct {
 
 func (x *StartRecordingRequest) Reset() {
 	*x = StartRecordingRequest{}
-	mi := &file_proto_macro_proto_msgTypes[0]
+	mi := &file_macro_proto_msgTypes[0]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -42,7 +42,7 @@ func (x *StartRecordingRequest) String() string {
 func (*StartRecordingRequest) ProtoMessage() {}
 
 func (x *StartRecordingRequest) ProtoReflect() protoreflect.Message {
-	mi := &file_proto_macro_proto_msgTypes[0]
+	mi := &file_macro_proto_msgTypes[0]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -55,7 +55,7 @@ func (x *StartRecordingRequest) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use StartRecordingRequest.ProtoReflect.Descriptor instead.
 func (*StartRecordingRequest) Descriptor() ([]byte, []int) {
-	return file_proto_macro_proto_rawDescGZIP(), []int{0}
+	return file_macro_proto_rawDescGZIP(), []int{0}
 }
 
 func (x *StartRecordingRequest) GetClearPrevious() bool {
@@ -75,7 +75,7 @@ type StartRecordingResponse struct {
 
 func (x *StartRecordingResponse) Reset() {
 	*x = StartRecordingResponse{}
-	mi := &file_proto_macro_proto_msgTypes[1]
+	mi := &file_macro_proto_msgTypes[1]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -87,7 +87,7 @@ func (x *StartRecordingResponse) String() string {
 func (*StartRecordingResponse) ProtoMessage() {}
 
 func (x *StartRecordingResponse) ProtoReflect() protoreflect.Message {
-	mi := &file_proto_macro_proto_msgTypes[1]
+	mi := &file_macro_proto_msgTypes[1]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -100,7 +100,7 @@ func (x *StartRecordingResponse) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use StartRecordingResponse.ProtoReflect.Descriptor instead.
 func (*StartRecordingResponse) Descriptor() ([]byte, []int) {
-	return file_proto_macro_proto_rawDescGZIP(), []int{1}
+	return file_macro_proto_rawDescGZIP(), []int{1}
 }
 
 func (x *StartRecordingResponse) GetSuccess() bool {
@@ -125,7 +125,7 @@ type StopRecordingRequest struct {
 
 func (x *StopRecordingRequest) Reset() {
 	*x = StopRecordingRequest{}
-	mi := &file_proto_macro_proto_msgTypes[2]
+	mi := &file_macro_proto_msgTypes[2]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -137,7 +137,7 @@ func (x *StopRecordingRequest) String() string {
 func (*StopRecordingRequest) ProtoMessage() {}
 
 func (x *StopRecordingRequest) ProtoReflect() protoreflect.Message {
-	mi := &file_proto_macro_proto_msgTypes[2]
+	mi := &file_macro_proto_msgTypes[2]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -150,7 +150,7 @@ func (x *StopRecordingRequest) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use StopRecordingRequest.ProtoReflect.Descriptor instead.
 func (*StopRecordingRequest) Descriptor() ([]byte, []int) {
-	return file_proto_macro_proto_rawDescGZIP(), []int{2}
+	return file_macro_proto_rawDescGZIP(), []int{2}
 }
 
 type StopRecordingResponse struct {
@@ -164,7 +164,7 @@ type StopRecordingResponse struct {
 
 func (x *StopRecordingResponse) Reset() {
 	*x = StopRecordingResponse{}
-	mi := &file_proto_macro_proto_msgTypes[3]
+	mi := &file_macro_proto_msgTypes[3]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -176,7 +176,7 @@ func (x *StopRecordingResponse) String() string {
 func (*StopRecordingResponse) ProtoMessage() {}
 
 func (x *StopRecordingResponse) ProtoReflect() protoreflect.Message {
-	mi := &file_proto_macro_proto_msgTypes[3]
+	mi := &file_macro_proto_msgTypes[3]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -189,7 +189,7 @@ func (x *StopRecordingResponse) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use StopRecordingResponse.ProtoReflect.Descriptor instead.
 func (*StopRecordingResponse) Descriptor() ([]byte, []int) {
-	return file_proto_macro_proto_rawDescGZIP(), []int{3}
+	return file_macro_proto_rawDescGZIP(), []int{3}
 }
 
 func (x *StopRecordingResponse) GetSuccess() bool {
@@ -221,7 +221,7 @@ type GetRecordingStatusRequest struct {
 
 func (x *GetRecordingStatusRequest) Reset() {
 	*x = GetRecordingStatusRequest{}
-	mi := &file_proto_macro_proto_msgTypes[4]
+	mi := &file_macro_proto_msgTypes[4]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -233,7 +233,7 @@ func (x *GetRecordingStatusRequest) String() string {
 func (*GetRecordingStatusRequest) ProtoMessage() {}
 
 func (x *GetRecordingStatusRequest) ProtoReflect() protoreflect.Message {
-	mi := &file_proto_macro_proto_msgTypes[4]
+	mi := &file_macro_proto_msgTypes[4]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -246,7 +246,7 @@ func (x *GetRecordingStatusRequest) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use GetRecordingStatusRequest.ProtoReflect.Descriptor instead.
 func (*GetRecordingStatusRequest) Descriptor() ([]byte, []int) {
-	return file_proto_macro_proto_rawDescGZIP(), []int{4}
+	return file_macro_proto_rawDescGZIP(), []int{4}
 }
 
 type GetRecordingStatusResponse struct {
@@ -259,7 +259,7 @@ type GetRecordingStatusResponse struct {
 
 func (x *GetRecordingStatusResponse) Reset() {
 	*x = GetRecordingStatusResponse{}
-	mi := &file_proto_macro_proto_msgTypes[5]
+	mi := &file_macro_proto_msgTypes[5]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -271,7 +271,7 @@ func (x *GetRecordingStatusResponse) String() string {
 func (*GetRecordingStatusResponse) ProtoMessage() {}
 
 func (x *GetRecordingStatusResponse) ProtoReflect() protoreflect.Message {
-	mi := &file_proto_macro_proto_msgTypes[5]
+	mi := &file_macro_proto_msgTypes[5]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -284,7 +284,7 @@ func (x *GetRecordingStatusResponse) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use GetRecordingStatusResponse.ProtoReflect.Descriptor instead.
 func (*GetRecordingStatusResponse) Descriptor() ([]byte, []int) {
-	return file_proto_macro_proto_rawDescGZIP(), []int{5}
+	return file_macro_proto_rawDescGZIP(), []int{5}
 }
 
 func (x *GetRecordingStatusResponse) GetIsRecording() bool {
@@ -311,7 +311,7 @@ type PlayScriptRequest struct {
 
 func (x *PlayScriptRequest) Reset() {
 	*x = PlayScriptRequest{}
-	mi := &file_proto_macro_proto_msgTypes[6]
+	mi := &file_macro_proto_msgTypes[6]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -323,7 +323,7 @@ func (x *PlayScriptRequest) String() string {
 func (*PlayScriptRequest) ProtoMessage() {}
 
 func (x *PlayScriptRequest) ProtoReflect() protoreflect.Message {
-	mi := &file_proto_macro_proto_msgTypes[6]
+	mi := &file_macro_proto_msgTypes[6]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -336,7 +336,7 @@ func (x *PlayScriptRequest) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use PlayScriptRequest.ProtoReflect.Descriptor instead.
 func (*PlayScriptRequest) Descriptor() ([]byte, []int) {
-	return file_proto_macro_proto_rawDescGZIP(), []int{6}
+	return file_macro_proto_rawDescGZIP(), []int{6}
 }
 
 func (x *PlayScriptRequest) GetScript() string {
@@ -363,7 +363,7 @@ type PlayScriptResponse struct {
 
 func (x *PlayScriptResponse) Reset() {
 	*x = PlayScriptResponse{}
-	mi := &file_proto_macro_proto_msgTypes[7]
+	mi := &file_macro_proto_msgTypes[7]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -375,7 +375,7 @@ func (x *PlayScriptResponse) String() string {
 func (*PlayScriptResponse) ProtoMessage() {}
 
 func (x *PlayScriptResponse) ProtoReflect() protoreflect.Message {
-	mi := &file_proto_macro_proto_msgTypes[7]
+	mi := &file_macro_proto_msgTypes[7]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -388,7 +388,7 @@ func (x *PlayScriptResponse) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use PlayScriptResponse.ProtoReflect.Descriptor instead.
 func (*PlayScriptResponse) Descriptor() ([]byte, []int) {
-	return file_proto_macro_proto_rawDescGZIP(), []int{7}
+	return file_macro_proto_rawDescGZIP(), []int{7}
 }
 
 func (x *PlayScriptResponse) GetSuccess() bool {
@@ -413,7 +413,7 @@ type GetPlaybackStatusRequest struct {
 
 func (x *GetPlaybackStatusRequest) Reset() {
 	*x = GetPlaybackStatusRequest{}
-	mi := &file_proto_macro_proto_msgTypes[8]
+	mi := &file_macro_proto_msgTypes[8]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -425,7 +425,7 @@ func (x *GetPlaybackStatusRequest) String() string {
 func (*GetPlaybackStatusRequest) ProtoMessage() {}
 
 func (x *GetPlaybackStatusRequest) ProtoReflect() protoreflect.Message {
-	mi := &file_proto_macro_proto_msgTypes[8]
+	mi := &file_macro_proto_msgTypes[8]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -438,7 +438,7 @@ func (x *GetPlaybackStatusRequest) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use GetPlaybackStatusRequest.ProtoReflect.Descriptor instead.
 func (*GetPlaybackStatusRequest) Descriptor() ([]byte, []int) {
-	return file_proto_macro_proto_rawDescGZIP(), []int{8}
+	return file_macro_proto_rawDescGZIP(), []int{8}
 }
 
 type GetPlaybackStatusResponse struct {
@@ -451,7 +451,7 @@ type GetPlaybackStatusResponse struct {
 
 func (x *GetPlaybackStatusResponse) Reset() {
 	*x = GetPlaybackStatusResponse{}
-	mi := &file_proto_macro_proto_msgTypes[9]
+	mi := &file_macro_proto_msgTypes[9]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -463,7 +463,7 @@ func (x *GetPlaybackStatusResponse) String() string {
 func (*GetPlaybackStatusResponse) ProtoMessage() {}
 
 func (x *GetPlaybackStatusResponse) ProtoReflect() protoreflect.Message {
-	mi := &file_proto_macro_proto_msgTypes[9]
+	mi := &file_macro_proto_msgTypes[9]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -476,7 +476,7 @@ func (x *GetPlaybackStatusResponse) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use GetPlaybackStatusResponse.ProtoReflect.Descriptor instead.
 func (*GetPlaybackStatusResponse) Descriptor() ([]byte, []int) {
-	return file_proto_macro_proto_rawDescGZIP(), []int{9}
+	return file_macro_proto_rawDescGZIP(), []int{9}
 }
 
 func (x *GetPlaybackStatusResponse) GetIsPlaying() bool {
@@ -506,7 +506,7 @@ type MacroInfo struct {
 
 func (x *MacroInfo) Reset() {
 	*x = MacroInfo{}
-	mi := &file_proto_macro_proto_msgTypes[10]
+	mi := &file_macro_proto_msgTypes[10]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -518,7 +518,7 @@ func (x *MacroInfo) String() string {
 func (*MacroInfo) ProtoMessage() {}
 
 func (x *MacroInfo) ProtoReflect() protoreflect.Message {
-	mi := &file_proto_macro_proto_msgTypes[10]
+	mi := &file_macro_proto_msgTypes[10]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -531,7 +531,7 @@ func (x *MacroInfo) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use MacroInfo.ProtoReflect.Descriptor instead.
 func (*MacroInfo) Descriptor() ([]byte, []int) {
-	return file_proto_macro_proto_rawDescGZIP(), []int{10}
+	return file_macro_proto_rawDescGZIP(), []int{10}
 }
 
 func (x *MacroInfo) GetName() string {
@@ -579,7 +579,7 @@ type SaveMacroRequest struct {
 
 func (x *SaveMacroRequest) Reset() {
 	*x = SaveMacroRequest{}
-	mi := &file_proto_macro_proto_msgTypes[11]
+	mi := &file_macro_proto_msgTypes[11]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -591,7 +591,7 @@ func (x *SaveMacroRequest) String() string {
 func (*SaveMacroRequest) ProtoMessage() {}
 
 func (x *SaveMacroRequest) ProtoReflect() protoreflect.Message {
-	mi := &file_proto_macro_proto_msgTypes[11]
+	mi := &file_macro_proto_msgTypes[11]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -604,7 +604,7 @@ func (x *SaveMacroRequest) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use SaveMacroRequest.ProtoReflect.Descriptor instead.
 func (*SaveMacroRequest) Descriptor() ([]byte, []int) {
-	return file_proto_macro_proto_rawDescGZIP(), []int{11}
+	return file_macro_proto_rawDescGZIP(), []int{11}
 }
 
 func (x *SaveMacroRequest) GetName() string {
@@ -631,7 +631,7 @@ type SaveMacroResponse struct {
 
 func (x *SaveMacroResponse) Reset() {
 	*x = SaveMacroResponse{}
-	mi := &file_proto_macro_proto_msgTypes[12]
+	mi := &file_macro_proto_msgTypes[12]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -643,7 +643,7 @@ func (x *SaveMacroResponse) String() string {
 func (*SaveMacroResponse) ProtoMessage() {}
 
 func (x *SaveMacroResponse) ProtoReflect() protoreflect.Message {
-	mi := &file_proto_macro_proto_msgTypes[12]
+	mi := &file_macro_proto_msgTypes[12]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -656,7 +656,7 @@ func (x *SaveMacroResponse) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use SaveMacroResponse.ProtoReflect.Descriptor instead.
 func (*SaveMacroResponse) Descriptor() ([]byte, []int) {
-	return file_proto_macro_proto_rawDescGZIP(), []int{12}
+	return file_macro_proto_rawDescGZIP(), []int{12}
 }
 
 func (x *SaveMacroResponse) GetSuccess() bool {
@@ -682,7 +682,7 @@ type LoadMacroRequest struct {
 
 func (x *LoadMacroRequest) Reset() {
 	*x = LoadMacroRequest{}
-	mi := &file_proto_macro_proto_msgTypes[13]
+	mi := &file_macro_proto_msgTypes[13]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -694,7 +694,7 @@ func (x *LoadMacroRequest) String() string {
 func (*LoadMacroRequest) ProtoMessage() {}
 
 func (x *LoadMacroRequest) ProtoReflect() protoreflect.Message {
-	mi := &file_proto_macro_proto_msgTypes[13]
+	mi := &file_macro_proto_msgTypes[13]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -707,7 +707,7 @@ func (x *LoadMacroRequest) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use LoadMacroRequest.ProtoReflect.Descriptor instead.
 func (*LoadMacroRequest) Descriptor() ([]byte, []int) {
-	return file_proto_macro_proto_rawDescGZIP(), []int{13}
+	return file_macro_proto_rawDescGZIP(), []int{13}
 }
 
 func (x *LoadMacroRequest) GetName() string {
@@ -728,7 +728,7 @@ type LoadMacroResponse struct {
 
 func (x *LoadMacroResponse) Reset() {
 	*x = LoadMacroResponse{}
-	mi := &file_proto_macro_proto_msgTypes[14]
+	mi := &file_macro_proto_msgTypes[14]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -740,7 +740,7 @@ func (x *LoadMacroResponse) String() string {
 func (*LoadMacroResponse) ProtoMessage() {}
 
 func (x *LoadMacroResponse) ProtoReflect() protoreflect.Message {
-	mi := &file_proto_macro_proto_msgTypes[14]
+	mi := &file_macro_proto_msgTypes[14]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -753,7 +753,7 @@ func (x *LoadMacroResponse) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use LoadMacroResponse.ProtoReflect.Descriptor instead.
 func (*LoadMacroResponse) Descriptor() ([]byte, []int) {
-	return file_proto_macro_proto_rawDescGZIP(), []int{14}
+	return file_macro_proto_rawDescGZIP(), []int{14}
 }
 
 func (x *LoadMacroResponse) GetSuccess() bool {
@@ -786,7 +786,7 @@ type DeleteMacroRequest struct {
 
 func (x *DeleteMacroRequest) Reset() {
 	*x = DeleteMacroRequest{}
-	mi := &file_proto_macro_proto_msgTypes[15]
+	mi := &file_macro_proto_msgTypes[15]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -798,7 +798,7 @@ func (x *DeleteMacroRequest) String() string {
 func (*DeleteMacroRequest) ProtoMessage() {}
 
 func (x *DeleteMacroRequest) ProtoReflect() protoreflect.Message {
-	mi := &file_proto_macro_proto_msgTypes[15]
+	mi := &file_macro_proto_msgTypes[15]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -811,7 +811,7 @@ func (x *DeleteMacroRequest) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use DeleteMacroRequest.ProtoReflect.Descriptor instead.
 func (*DeleteMacroRequest) Descriptor() ([]byte, []int) {
-	return file_proto_macro_proto_rawDescGZIP(), []int{15}
+	return file_macro_proto_rawDescGZIP(), []int{15}
 }
 
 func (x *DeleteMacroRequest) GetName() string {
@@ -831,7 +831,7 @@ type DeleteMacroResponse struct {
 
 func (x *DeleteMacroResponse) Reset() {
 	*x = DeleteMacroResponse{}
-	mi := &file_proto_macro_proto_msgTypes[16]
+	mi := &file_macro_proto_msgTypes[16]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -843,7 +843,7 @@ func (x *DeleteMacroResponse) String() string {
 func (*DeleteMacroResponse) ProtoMessage() {}
 
 func (x *DeleteMacroResponse) ProtoReflect() protoreflect.Message {
-	mi := &file_proto_macro_proto_msgTypes[16]
+	mi := &file_macro_proto_msgTypes[16]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -856,7 +856,7 @@ func (x *DeleteMacroResponse) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use DeleteMacroResponse.ProtoReflect.Descriptor instead.
 func (*DeleteMacroResponse) Descriptor() ([]byte, []int) {
-	return file_proto_macro_proto_rawDescGZIP(), []int{16}
+	return file_macro_proto_rawDescGZIP(), []int{16}
 }
 
 func (x *DeleteMacroResponse) GetSuccess() bool {
@@ -881,7 +881,7 @@ type ListMacrosRequest struct {
 
 func (x *ListMacrosRequest) Reset() {
 	*x = ListMacrosRequest{}
-	mi := &file_proto_macro_proto_msgTypes[17]
+	mi := &file_macro_proto_msgTypes[17]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -893,7 +893,7 @@ func (x *ListMacrosRequest) String() string {
 func (*ListMacrosRequest) ProtoMessage() {}
 
 func (x *ListMacrosRequest) ProtoReflect() protoreflect.Message {
-	mi := &file_proto_macro_proto_msgTypes[17]
+	mi := &file_macro_proto_msgTypes[17]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -906,7 +906,7 @@ func (x *ListMacrosRequest) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use ListMacrosRequest.ProtoReflect.Descriptor instead.
 func (*ListMacrosRequest) Descriptor() ([]byte, []int) {
-	return file_proto_macro_proto_rawDescGZIP(), []int{17}
+	return file_macro_proto_rawDescGZIP(), []int{17}
 }
 
 type ListMacrosResponse struct {
@@ -920,7 +920,7 @@ type ListMacrosResponse struct {
 
 func (x *ListMacrosResponse) Reset() {
 	*x = ListMacrosResponse{}
-	mi := &file_proto_macro_proto_msgTypes[18]
+	mi := &file_macro_proto_msgTypes[18]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -932,7 +932,7 @@ func (x *ListMacrosResponse) String() string {
 func (*ListMacrosResponse) ProtoMessage() {}
 
 func (x *ListMacrosResponse) ProtoReflect() protoreflect.Message {
-	mi := &file_proto_macro_proto_msgTypes[18]
+	mi := &file_macro_proto_msgTypes[18]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -945,7 +945,7 @@ func (x *ListMacrosResponse) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use ListMacrosResponse.ProtoReflect.Descriptor instead.
 func (*ListMacrosResponse) Descriptor() ([]byte, []int) {
-	return file_proto_macro_proto_rawDescGZIP(), []int{18}
+	return file_macro_proto_rawDescGZIP(), []int{18}
 }
 
 func (x *ListMacrosResponse) GetSuccess() bool {
@@ -978,7 +978,7 @@ type GenerateScriptRequest struct {
 
 func (x *GenerateScriptRequest) Reset() {
 	*x = GenerateScriptRequest{}
-	mi := &file_proto_macro_proto_msgTypes[19]
+	mi := &file_macro_proto_msgTypes[19]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -990,7 +990,7 @@ func (x *GenerateScriptRequest) String() string {
 func (*GenerateScriptRequest) ProtoMessage() {}
 
 func (x *GenerateScriptRequest) ProtoReflect() protoreflect.Message {
-	mi := &file_proto_macro_proto_msgTypes[19]
+	mi := &file_macro_proto_msgTypes[19]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -1003,7 +1003,7 @@ func (x *GenerateScriptRequest) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use GenerateScriptRequest.ProtoReflect.Descriptor instead.
 func (*GenerateScriptRequest) Descriptor() ([]byte, []int) {
-	return file_proto_macro_proto_rawDescGZIP(), []int{19}
+	return file_macro_proto_rawDescGZIP(), []int{19}
 }
 
 func (x *GenerateScriptRequest) GetName() string {
@@ -1024,7 +1024,7 @@ type GenerateScriptResponse struct {
 
 func (x *GenerateScriptResponse) Reset() {
 	*x = GenerateScriptResponse{}
-	mi := &file_proto_macro_proto_msgTypes[20]
+	mi := &file_macro_proto_msgTypes[20]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -1036,7 +1036,7 @@ func (x *GenerateScriptResponse) String() string {
 func (*GenerateScriptResponse) ProtoMessage() {}
 
 func (x *GenerateScriptResponse) ProtoReflect() protoreflect.Message {
-	mi := &file_proto_macro_proto_msgTypes[20]
+	mi := &file_macro_proto_msgTypes[20]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -1049,7 +1049,7 @@ func (x *GenerateScriptResponse) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use GenerateScriptResponse.ProtoReflect.Descriptor instead.
 func (*GenerateScriptResponse) Descriptor() ([]byte, []int) {
-	return file_proto_macro_proto_rawDescGZIP(), []int{20}
+	return file_macro_proto_rawDescGZIP(), []int{20}
 }
 
 func (x *GenerateScriptResponse) GetSuccess() bool {
@@ -1082,13 +1082,14 @@ type EventData struct {
 	Button        int32                  `protobuf:"varint,5,opt,name=button,proto3" json:"button,omitempty"`                  // 鼠标按钮
 	Timestamp     int64                  `protobuf:"varint,6,opt,name=timestamp,proto3" json:"timestamp,omitempty"`            // 时间戳
 	Delta         int32                  `protobuf:"varint,7,opt,name=delta,proto3" json:"delta,omitempty"`                    // 滚轮增量
+	Chars         string                 `protobuf:"bytes,8,opt,name=chars,proto3" json:"chars,omitempty"`                     // 字符（用于字符输入事件）
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
 }
 
 func (x *EventData) Reset() {
 	*x = EventData{}
-	mi := &file_proto_macro_proto_msgTypes[21]
+	mi := &file_macro_proto_msgTypes[21]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -1100,7 +1101,7 @@ func (x *EventData) String() string {
 func (*EventData) ProtoMessage() {}
 
 func (x *EventData) ProtoReflect() protoreflect.Message {
-	mi := &file_proto_macro_proto_msgTypes[21]
+	mi := &file_macro_proto_msgTypes[21]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -1113,7 +1114,7 @@ func (x *EventData) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use EventData.ProtoReflect.Descriptor instead.
 func (*EventData) Descriptor() ([]byte, []int) {
-	return file_proto_macro_proto_rawDescGZIP(), []int{21}
+	return file_macro_proto_rawDescGZIP(), []int{21}
 }
 
 func (x *EventData) GetType() string {
@@ -1165,6 +1166,13 @@ func (x *EventData) GetDelta() int32 {
 	return 0
 }
 
+func (x *EventData) GetChars() string {
+	if x != nil {
+		return x.Chars
+	}
+	return ""
+}
+
 type GetCurrentEventsRequest struct {
 	state         protoimpl.MessageState `protogen:"open.v1"`
 	unknownFields protoimpl.UnknownFields
@@ -1173,7 +1181,7 @@ type GetCurrentEventsRequest struct {
 
 func (x *GetCurrentEventsRequest) Reset() {
 	*x = GetCurrentEventsRequest{}
-	mi := &file_proto_macro_proto_msgTypes[22]
+	mi := &file_macro_proto_msgTypes[22]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -1185,7 +1193,7 @@ func (x *GetCurrentEventsRequest) String() string {
 func (*GetCurrentEventsRequest) ProtoMessage() {}
 
 func (x *GetCurrentEventsRequest) ProtoReflect() protoreflect.Message {
-	mi := &file_proto_macro_proto_msgTypes[22]
+	mi := &file_macro_proto_msgTypes[22]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -1198,7 +1206,7 @@ func (x *GetCurrentEventsRequest) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use GetCurrentEventsRequest.ProtoReflect.Descriptor instead.
 func (*GetCurrentEventsRequest) Descriptor() ([]byte, []int) {
-	return file_proto_macro_proto_rawDescGZIP(), []int{22}
+	return file_macro_proto_rawDescGZIP(), []int{22}
 }
 
 type GetCurrentEventsResponse struct {
@@ -1211,7 +1219,7 @@ type GetCurrentEventsResponse struct {
 
 func (x *GetCurrentEventsResponse) Reset() {
 	*x = GetCurrentEventsResponse{}
-	mi := &file_proto_macro_proto_msgTypes[23]
+	mi := &file_macro_proto_msgTypes[23]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -1223,7 +1231,7 @@ func (x *GetCurrentEventsResponse) String() string {
 func (*GetCurrentEventsResponse) ProtoMessage() {}
 
 func (x *GetCurrentEventsResponse) ProtoReflect() protoreflect.Message {
-	mi := &file_proto_macro_proto_msgTypes[23]
+	mi := &file_macro_proto_msgTypes[23]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -1236,7 +1244,7 @@ func (x *GetCurrentEventsResponse) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use GetCurrentEventsResponse.ProtoReflect.Descriptor instead.
 func (*GetCurrentEventsResponse) Descriptor() ([]byte, []int) {
-	return file_proto_macro_proto_rawDescGZIP(), []int{23}
+	return file_macro_proto_rawDescGZIP(), []int{23}
 }
 
 func (x *GetCurrentEventsResponse) GetSuccess() bool {
@@ -1261,7 +1269,7 @@ type HealthCheckRequest struct {
 
 func (x *HealthCheckRequest) Reset() {
 	*x = HealthCheckRequest{}
-	mi := &file_proto_macro_proto_msgTypes[24]
+	mi := &file_macro_proto_msgTypes[24]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -1273,7 +1281,7 @@ func (x *HealthCheckRequest) String() string {
 func (*HealthCheckRequest) ProtoMessage() {}
 
 func (x *HealthCheckRequest) ProtoReflect() protoreflect.Message {
-	mi := &file_proto_macro_proto_msgTypes[24]
+	mi := &file_macro_proto_msgTypes[24]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -1286,7 +1294,7 @@ func (x *HealthCheckRequest) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use HealthCheckRequest.ProtoReflect.Descriptor instead.
 func (*HealthCheckRequest) Descriptor() ([]byte, []int) {
-	return file_proto_macro_proto_rawDescGZIP(), []int{24}
+	return file_macro_proto_rawDescGZIP(), []int{24}
 }
 
 type HealthCheckResponse struct {
@@ -1299,7 +1307,7 @@ type HealthCheckResponse struct {
 
 func (x *HealthCheckResponse) Reset() {
 	*x = HealthCheckResponse{}
-	mi := &file_proto_macro_proto_msgTypes[25]
+	mi := &file_macro_proto_msgTypes[25]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -1311,7 +1319,7 @@ func (x *HealthCheckResponse) String() string {
 func (*HealthCheckResponse) ProtoMessage() {}
 
 func (x *HealthCheckResponse) ProtoReflect() protoreflect.Message {
-	mi := &file_proto_macro_proto_msgTypes[25]
+	mi := &file_macro_proto_msgTypes[25]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -1324,7 +1332,7 @@ func (x *HealthCheckResponse) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use HealthCheckResponse.ProtoReflect.Descriptor instead.
 func (*HealthCheckResponse) Descriptor() ([]byte, []int) {
-	return file_proto_macro_proto_rawDescGZIP(), []int{25}
+	return file_macro_proto_rawDescGZIP(), []int{25}
 }
 
 func (x *HealthCheckResponse) GetHealthy() bool {
@@ -1341,11 +1349,11 @@ func (x *HealthCheckResponse) GetVersion() string {
 	return ""
 }
 
-var File_proto_macro_proto protoreflect.FileDescriptor
+var File_macro_proto protoreflect.FileDescriptor
 
-const file_proto_macro_proto_rawDesc = "" +
+const file_macro_proto_rawDesc = "" +
 	"\n" +
-	"\x11proto/macro.proto\x12\x05macro\">\n" +
+	"\vmacro.proto\x12\x05macro\">\n" +
 	"\x15StartRecordingRequest\x12%\n" +
 	"\x0eclear_previous\x18\x01 \x01(\bR\rclearPrevious\"L\n" +
 	"\x16StartRecordingResponse\x12\x18\n" +
@@ -1409,7 +1417,7 @@ const file_proto_macro_proto_rawDesc = "" +
 	"\x16GenerateScriptResponse\x12\x18\n" +
 	"\asuccess\x18\x01 \x01(\bR\asuccess\x12\x16\n" +
 	"\x06script\x18\x02 \x01(\tR\x06script\x12\x18\n" +
-	"\amessage\x18\x03 \x01(\tR\amessage\"\xa2\x01\n" +
+	"\amessage\x18\x03 \x01(\tR\amessage\"\xb8\x01\n" +
 	"\tEventData\x12\x12\n" +
 	"\x04type\x18\x01 \x01(\tR\x04type\x12\x19\n" +
 	"\bkey_code\x18\x02 \x01(\x05R\akeyCode\x12\f\n" +
@@ -1417,7 +1425,8 @@ const file_proto_macro_proto_rawDesc = "" +
 	"\x01y\x18\x04 \x01(\x05R\x01y\x12\x16\n" +
 	"\x06button\x18\x05 \x01(\x05R\x06button\x12\x1c\n" +
 	"\ttimestamp\x18\x06 \x01(\x03R\ttimestamp\x12\x14\n" +
-	"\x05delta\x18\a \x01(\x05R\x05delta\"\x19\n" +
+	"\x05delta\x18\a \x01(\x05R\x05delta\x12\x14\n" +
+	"\x05chars\x18\b \x01(\tR\x05chars\"\x19\n" +
 	"\x17GetCurrentEventsRequest\"^\n" +
 	"\x18GetCurrentEventsResponse\x12\x18\n" +
 	"\asuccess\x18\x01 \x01(\bR\asuccess\x12(\n" +
@@ -1443,19 +1452,19 @@ const file_proto_macro_proto_rawDesc = "" +
 	"\vHealthCheck\x12\x19.macro.HealthCheckRequest\x1a\x1a.macro.HealthCheckResponseB=Z;github.com/issueye/macro-operation/macro-common/proto;macrob\x06proto3"
 
 var (
-	file_proto_macro_proto_rawDescOnce sync.Once
-	file_proto_macro_proto_rawDescData []byte
+	file_macro_proto_rawDescOnce sync.Once
+	file_macro_proto_rawDescData []byte
 )
 
-func file_proto_macro_proto_rawDescGZIP() []byte {
-	file_proto_macro_proto_rawDescOnce.Do(func() {
-		file_proto_macro_proto_rawDescData = protoimpl.X.CompressGZIP(unsafe.Slice(unsafe.StringData(file_proto_macro_proto_rawDesc), len(file_proto_macro_proto_rawDesc)))
+func file_macro_proto_rawDescGZIP() []byte {
+	file_macro_proto_rawDescOnce.Do(func() {
+		file_macro_proto_rawDescData = protoimpl.X.CompressGZIP(unsafe.Slice(unsafe.StringData(file_macro_proto_rawDesc), len(file_macro_proto_rawDesc)))
 	})
-	return file_proto_macro_proto_rawDescData
+	return file_macro_proto_rawDescData
 }
 
-var file_proto_macro_proto_msgTypes = make([]protoimpl.MessageInfo, 26)
-var file_proto_macro_proto_goTypes = []any{
+var file_macro_proto_msgTypes = make([]protoimpl.MessageInfo, 26)
+var file_macro_proto_goTypes = []any{
 	(*StartRecordingRequest)(nil),      // 0: macro.StartRecordingRequest
 	(*StartRecordingResponse)(nil),     // 1: macro.StartRecordingResponse
 	(*StopRecordingRequest)(nil),       // 2: macro.StopRecordingRequest
@@ -1483,7 +1492,7 @@ var file_proto_macro_proto_goTypes = []any{
 	(*HealthCheckRequest)(nil),         // 24: macro.HealthCheckRequest
 	(*HealthCheckResponse)(nil),        // 25: macro.HealthCheckResponse
 }
-var file_proto_macro_proto_depIdxs = []int32{
+var file_macro_proto_depIdxs = []int32{
 	10, // 0: macro.LoadMacroResponse.macro:type_name -> macro.MacroInfo
 	10, // 1: macro.ListMacrosResponse.macros:type_name -> macro.MacroInfo
 	21, // 2: macro.GetCurrentEventsResponse.events:type_name -> macro.EventData
@@ -1518,26 +1527,26 @@ var file_proto_macro_proto_depIdxs = []int32{
 	0,  // [0:3] is the sub-list for field type_name
 }
 
-func init() { file_proto_macro_proto_init() }
-func file_proto_macro_proto_init() {
-	if File_proto_macro_proto != nil {
+func init() { file_macro_proto_init() }
+func file_macro_proto_init() {
+	if File_macro_proto != nil {
 		return
 	}
 	type x struct{}
 	out := protoimpl.TypeBuilder{
 		File: protoimpl.DescBuilder{
 			GoPackagePath: reflect.TypeOf(x{}).PkgPath(),
-			RawDescriptor: unsafe.Slice(unsafe.StringData(file_proto_macro_proto_rawDesc), len(file_proto_macro_proto_rawDesc)),
+			RawDescriptor: unsafe.Slice(unsafe.StringData(file_macro_proto_rawDesc), len(file_macro_proto_rawDesc)),
 			NumEnums:      0,
 			NumMessages:   26,
 			NumExtensions: 0,
 			NumServices:   1,
 		},
-		GoTypes:           file_proto_macro_proto_goTypes,
-		DependencyIndexes: file_proto_macro_proto_depIdxs,
-		MessageInfos:      file_proto_macro_proto_msgTypes,
+		GoTypes:           file_macro_proto_goTypes,
+		DependencyIndexes: file_macro_proto_depIdxs,
+		MessageInfos:      file_macro_proto_msgTypes,
 	}.Build()
-	File_proto_macro_proto = out.File
-	file_proto_macro_proto_goTypes = nil
-	file_proto_macro_proto_depIdxs = nil
+	File_macro_proto = out.File
+	file_macro_proto_goTypes = nil
+	file_macro_proto_depIdxs = nil
 }

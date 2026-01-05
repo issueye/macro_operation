@@ -18,6 +18,10 @@ export function GetEventCount() {
   return window['go']['main']['App']['GetEventCount']();
 }
 
+export function GetRecentEvents(arg1) {
+  return window['go']['main']['App']['GetRecentEvents'](arg1);
+}
+
 export function IsEngineRunning() {
   return window['go']['main']['App']['IsEngineRunning']();
 }

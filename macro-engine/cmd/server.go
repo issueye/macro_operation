@@ -12,6 +12,7 @@ import (
 
 	"macro-engine/internal/model"
 	"macro-engine/internal/service"
+
 	pb "github.com/issueye/macro-operation/macro-common/proto"
 
 	"google.golang.org/grpc"
@@ -220,6 +221,7 @@ func (s *MacroEngineServer) GetCurrentEvents(ctx context.Context, req *pb.GetCur
 			Button:    int32(ev.Button),
 			Timestamp: ev.Timestamp,
 			Delta:     int32(ev.Delta),
+			Chars:     ev.Chars,
 		})
 	}
 

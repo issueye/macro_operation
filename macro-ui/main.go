@@ -16,9 +16,9 @@ func main() {
 	app := NewApp()
 
 	err := wails.Run(&options.App{
-		Title:     "MacroRecorder",
-		Width:     800,
-		Height:    600,
+		Title:  "MacroRecorder",
+		Width:  1200,
+		Height: 800,
 		AssetServer: &assetserver.Options{
 			Assets: assets,
 		},

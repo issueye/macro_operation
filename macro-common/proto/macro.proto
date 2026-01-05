@@ -141,6 +141,7 @@ message EventData {
   int32 button = 5;     // 鼠标按钮
   int64 timestamp = 6;  // 时间戳
   int32 delta = 7;      // 滚轮增量
+  string chars = 8;     // 字符（用于字符输入事件）
 }
 
 message GetCurrentEventsRequest {}

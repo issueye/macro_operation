@@ -59,7 +59,28 @@ func (s *RecordService) Stop() (int, error) {
 	s.capture.Stop()
 	s.isStarted = false
 
-	return s.capture.GetEventCount(), nil
+	// 获取所有事件用于诊断
+	events := s.capture.GetEvents()
+
+	// 打印诊断信息
+	fmt.Printf("[DIAGNOSTIC] Total events captured: %d\n", len(events))
+	keyDownCount := 0
+	keyUpCount := 0
+	for i, ev := range events {
+		if ev.Type == model.EventTypeKeyDown {
+			keyDownCount++
+		} else if ev.Type == model.EventTypeKeyUp {
+			keyUpCount++
+		}
+		// 打印前 50 个事件的详情
+		if i < 50 {
+			fmt.Printf("[DIAGNOSTIC] Event %d: Type=%s, KeyCode=%d, Chars=%q, X=%d, Y=%d\n",
+				i, ev.Type, ev.KeyCode, ev.Chars, ev.X, ev.Y)
+		}
+	}
+	fmt.Printf("[DIAGNOSTIC] KeyDown events: %d, KeyUp events: %d\n", keyDownCount, keyUpCount)
+
+	return len(events), nil
 }
 
 // GetEvents 获取录制的事件
@@ -67,17 +88,7 @@ func (s *RecordService) GetEvents() []model.Event {
 	s.mutex.RLock()
 	defer s.mutex.RUnlock()
 
-	rawEvents := s.capture.GetEvents()
-	events := make([]model.Event, 0, len(rawEvents))
-
-	for _, rawEv := range rawEvents {
-		// 转换为 model.Event
-		if ev, ok := rawEv.(model.Event); ok {
-			events = append(events, ev)
-		}
-	}
-
-	return events
+	return s.capture.GetEvents()
 }
 
 // GenerateScript 生成脚本

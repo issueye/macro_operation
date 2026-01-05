@@ -10,6 +10,7 @@ const (
 	EventTypeMouseUp   EventType = "mouseup"
 	EventTypeMouseMove EventType = "mousemove"
 	EventTypeWheel     EventType = "wheel"
+	EventTypeChars     EventType = "chars" // 字符输入事件
 )
 
 // MouseButton 鼠标按钮
@@ -25,6 +26,7 @@ const (
 type Event struct {
 	Type      EventType  `json:"type"`
 	KeyCode   int        `json:"key_code"`
+	Chars     string     `json:"chars"`      // 字符输入（用于中文等）
 	X         int        `json:"x"`
 	Y         int        `json:"y"`
 	Button    MouseButton `json:"button"`

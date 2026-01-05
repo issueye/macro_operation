@@ -7,7 +7,7 @@ import (
 	"os"
 	"os/exec"
 	"path/filepath"
-	"syscall"
+	"sync"
 	"time"
 
 	pb "github.com/issueye/macro-operation/macro-common/proto"
@@ -22,10 +22,11 @@ const (
 
 // App 应用主结构
 type App struct {
-	ctx      context.Context
-	conn     *grpc.ClientConn
-	client   pb.MacroEngineClient
+	ctx       context.Context
+	conn      *grpc.ClientConn
+	client    pb.MacroEngineClient
 	engineCmd *exec.Cmd
+	logMutex  sync.RWMutex
 }
 
 // NewApp 创建新应用
@@ -35,11 +36,34 @@ func NewApp() *App {
 
 // startEngine 启动 engine 服务
 func (a *App) startEngine() error {
-	// 获取 engine 可执行文件路径
-	exePath := filepath.Join(filepath.Dir(os.Args[0]), "engine.exe")
-	if _, err := os.Stat(exePath); err != nil {
-		// 尝试从当前目录查找
-		exePath = "engine.exe"
+	// 获取可执行文件目录
+	exeDir := filepath.Dir(os.Args[0])
+
+	// 尝试多个可能的 engine 路径
+	possiblePaths := []string{
+		filepath.Join(exeDir, "engine.exe"),      // 标准构建
+		filepath.Join(exeDir, "engine-test.exe"), // 测试构建
+		"engine.exe",                             // 当前目录
+		"engine-test.exe",                        // 当前目录测试版
+		"../bin/engine.exe",                      // 开发环境
+		"../bin/engine-test.exe",                 // 开发环境测试版
+	}
+
+	var exePath string
+	for _, path := range possiblePaths {
+		if _, err := os.Stat(path); err == nil {
+			exePath = path
+			break
+		}
+	}
+
+	if exePath == "" {
+		return fmt.Errorf("engine executable not found (tried: %v)", possiblePaths)
+	}
+
+	// 转换为绝对路径
+	if !filepath.IsAbs(exePath) {
+		exePath, _ = filepath.Abs(exePath)
 	}
 
 	log.Printf("Starting engine: %s", exePath)
@@ -47,10 +71,13 @@ func (a *App) startEngine() error {
 	// 启动 engine 进程
 	cmd := exec.Command(exePath)
 
-	// 隐藏控制台窗口
-	cmd.SysProcAttr = &syscall.SysProcAttr{
-		HideWindow: true,
-	}
+	// 设置工作目录为 engine 所在目录
+	cmd.Dir = filepath.Dir(exePath)
+
+	// 隐藏控制台窗口（仅 Windows）
+	// cmd.SysProcAttr = &syscall.SysProcAttr{
+	// 	HideWindow: true,
+	// }
 
 	if err := cmd.Start(); err != nil {
 		return fmt.Errorf("failed to start engine: %w", err)
@@ -291,10 +318,11 @@ func (a *App) DeleteMacro(name string) error {
 
 // MacroInfo 宏信息
 type MacroInfo struct {
-	Name      string
-	CreatedAt string
-	UpdatedAt string
-	Script    string
+	Name       string `json:"name"`
+	CreatedAt  string `json:"createdAt"`
+	UpdatedAt  string `json:"updatedAt"`
+	Script     string `json:"script"`
+	EventCount int    `json:"event_count"`
 }
 
 // ListMacros 列出所有宏
@@ -315,10 +343,11 @@ func (a *App) ListMacros() ([]MacroInfo, error) {
 	result := make([]MacroInfo, 0, len(resp.Macros))
 	for _, m := range resp.Macros {
 		result = append(result, MacroInfo{
-			Name:      m.Name,
-			CreatedAt: m.CreatedAt,
-			UpdatedAt: m.UpdatedAt,
-			Script:    m.Script,
+			Name:       m.Name,
+			CreatedAt:  m.CreatedAt,
+			UpdatedAt:  m.UpdatedAt,
+			Script:     m.Script,
+			EventCount: int(m.EventCount),
 		})
 	}
 
@@ -350,4 +379,56 @@ func (a *App) GenerateScript(name string) (string, error) {
 // GenerateCurrentScript 生成当前录制事件的脚本
 func (a *App) GenerateCurrentScript() (string, error) {
 	return a.GenerateScript("temp")
+}
+
+// ========== 实时事件相关 ==========
+
+// EventInfo 事件信息
+type EventInfo struct {
+	Index     int    `json:"index"`
+	Type      string `json:"type"`
+	KeyCode   int    `json:"keyCode"`
+	Chars     string `json:"chars"`
+	X         int    `json:"x"`
+	Y         int    `json:"y"`
+	Button    int32  `json:"button"`
+	Delta     int32  `json:"delta"`
+	Timestamp int64  `json:"timestamp"`
+}
+
+// GetRecentEvents 获取最近的事件
+func (a *App) GetRecentEvents(limit int) ([]EventInfo, error) {
+	if a.client == nil {
+		return nil, fmt.Errorf("not connected to engine server")
+	}
+
+	resp, err := a.client.GetCurrentEvents(a.ctx, &pb.GetCurrentEventsRequest{})
+	if err != nil {
+		return nil, err
+	}
+
+	if !resp.Success {
+		return nil, fmt.Errorf("failed to get events")
+	}
+
+	// 限制返回数量
+	result := make([]EventInfo, 0, len(resp.Events))
+	for i, e := range resp.Events {
+		if i >= limit {
+			break
+		}
+		result = append(result, EventInfo{
+			Index:     i,
+			Type:      e.Type,
+			KeyCode:   int(e.KeyCode),
+			Chars:     e.Chars,
+			X:         int(e.X),
+			Y:         int(e.Y),
+			Button:    e.Button,
+			Delta:     e.Delta,
+			Timestamp: e.Timestamp,
+		})
+	}
+
+	return result, nil
 }

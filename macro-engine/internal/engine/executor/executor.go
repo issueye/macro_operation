@@ -7,6 +7,7 @@ import (
 
 	"github.com/dop251/goja"
 	"github.com/go-vgo/robotgo"
+	"github.com/go-vgo/robotgo/clipboard"
 )
 
 // Executor 脚本执行器
@@ -63,6 +64,34 @@ func (e *Executor) IsPlaying() bool {
 	return e.isPlaying
 }
 
+// typeUnicode 使用剪贴板方式输入 Unicode 字符（支持中文等）
+func typeUnicode(text string) error {
+	// 保存当前剪贴板内容
+	oldClipboard, err := clipboard.ReadAll()
+	if err != nil {
+		oldClipboard = ""
+	}
+
+	// 将文本写入剪贴板
+	if err := clipboard.WriteAll(text); err != nil {
+		return fmt.Errorf("failed to write to clipboard: %w", err)
+	}
+
+	// 等待剪贴板更新
+	time.Sleep(50 * time.Millisecond)
+
+	// 模拟 Ctrl+V 粘贴
+	robotgo.KeyTap("v", "command")
+
+	// 恢复原剪贴板内容
+	time.Sleep(100 * time.Millisecond)
+	if oldClipboard != "" {
+		clipboard.WriteAll(oldClipboard)
+	}
+
+	return nil
+}
+
 // registerRobotAPI 注册机器人 API
 func (e *Executor) registerRobotAPI(vm *goja.Runtime) error {
 	// 鼠标移动
@@ -77,7 +106,7 @@ func (e *Executor) registerRobotAPI(vm *goja.Runtime) error {
 
 	// 鼠标拖拽
 	mouseDrag := func(x, y int) {
-		robotgo.DragMouse(x, y)
+		robotgo.MoveSmooth(x, y)
 	}
 
 	// 鼠标滚轮
@@ -95,9 +124,25 @@ func (e *Executor) registerRobotAPI(vm *goja.Runtime) error {
 		robotgo.KeyUp(key)
 	}
 
-	// 键盘输入
-	keyType := func(keys string) {
-		robotgo.TypeStr(keys)
+	// 键盘输入 - 支持 Unicode（中文等）
+	keyType := func(keys string) error {
+		// 检查是否包含非 ASCII 字符（中文等）
+		hasUnicode := false
+		for _, r := range keys {
+			if r > 127 {
+				hasUnicode = true
+				break
+			}
+		}
+
+		if hasUnicode {
+			// 使用剪贴板方式输入中文
+			return typeUnicode(keys)
+		} else {
+			// 使用普通方式输入 ASCII
+			robotgo.TypeStr(keys)
+			return nil
+		}
 	}
 
 	// 键盘敲击
