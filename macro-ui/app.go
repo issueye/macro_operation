@@ -1,6 +1,7 @@
 package main
 
 import (
+	"bufio"
 	"context"
 	"fmt"
 	"log"
@@ -8,6 +9,7 @@ import (
 	"os/exec"
 	"path/filepath"
 	"sync"
+	"syscall"
 	"time"
 
 	pb "github.com/issueye/macro-operation/macro-common/proto"
@@ -75,9 +77,19 @@ func (a *App) startEngine() error {
 	cmd.Dir = filepath.Dir(exePath)
 
 	// 隐藏控制台窗口（仅 Windows）
-	// cmd.SysProcAttr = &syscall.SysProcAttr{
-	// 	HideWindow: true,
-	// }
+	cmd.SysProcAttr = &syscall.SysProcAttr{
+		HideWindow: true,
+	}
+
+	// 获取程序输出的 stdio 内容（必须在 Start 之前）
+	stdout, err := cmd.StdoutPipe()
+	if err != nil {
+		return fmt.Errorf("failed to get stdout pipe: %w", err)
+	}
+	stderr, err := cmd.StderrPipe()
+	if err != nil {
+		return fmt.Errorf("failed to get stderr pipe: %w", err)
+	}
 
 	if err := cmd.Start(); err != nil {
 		return fmt.Errorf("failed to start engine: %w", err)
@@ -85,6 +97,20 @@ func (a *App) startEngine() error {
 
 	a.engineCmd = cmd
 	log.Println("Engine process started")
+
+	// 读取程序输出的 stdio 内容
+	go func() {
+		scanner := bufio.NewScanner(stdout)
+		for scanner.Scan() {
+			log.Println(scanner.Text())
+		}
+	}()
+	go func() {
+		scanner := bufio.NewScanner(stderr)
+		for scanner.Scan() {
+			log.Println(scanner.Text())
+		}
+	}()
 
 	return nil
 }

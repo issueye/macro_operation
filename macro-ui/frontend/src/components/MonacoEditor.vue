@@ -1,50 +1,17 @@
 <template>
-    <div ref="editorContainer" class="simple-editor-container">
-        <!-- 行号 -->
-        <div class="line-numbers">
-            <div
-                v-for="(line, index) in lines"
-                :key="index"
-                class="line-number"
-            >
-                {{ index + 1 }}
-            </div>
-        </div>
-
-        <!-- 代码编辑区 -->
-        <textarea
-            ref="textareaRef"
-            class="code-textarea"
-            :value="modelValue"
-            @input="handleInput"
-            @keydown="handleKeydown"
-            @scroll="syncScroll"
-            @click="updateCursorPosition"
-            @keyup="updateCursorPosition"
-            :readonly="readOnly"
-            spellcheck="false"
-            autocomplete="off"
-            autocorrect="off"
-            autocapitalize="off"
-            lang="en"
-        ></textarea>
-
-        <!-- 光标状态显示 -->
-        <div class="cursor-status" v-if="cursorPosition">
-            Ln {{ cursorPosition.line }}, Col {{ cursorPosition.column }}
-        </div>
-    </div>
+    <div
+        ref="editorContainer"
+        class="monaco-editor-container"
+        :style="{ height: '100%' }"
+    ></div>
 </template>
 
 <script setup>
-import {
-    ref,
-    computed,
-    watch,
-    onMounted,
-    onBeforeUnmount,
-    nextTick,
-} from "vue";
+import { ref, watch, onMounted, onBeforeUnmount, nextTick } from "vue";
+
+// Monaco Editor will be dynamically imported
+let monaco = null;
+let editor = null;
 
 const props = defineProps({
     modelValue: {
@@ -57,11 +24,15 @@ const props = defineProps({
     },
     theme: {
         type: String,
-        default: "vs-dark",
+        default: "macro-dark",
     },
     readOnly: {
         type: Boolean,
         default: false,
+    },
+    height: {
+        type: Number,
+        default: 400,
     },
     options: {
         type: Object,
@@ -69,294 +40,242 @@ const props = defineProps({
     },
 });
 
-const emit = defineEmits(["update:modelValue", "change", "save"]);
+const emit = defineEmits([
+    "update:modelValue",
+    "change",
+    "save",
+    "editor-mounted",
+]);
 
-const textareaRef = ref(null);
-const cursorPosition = ref(null);
-const isComposing = ref(false); // 输入法 composing 状态
+const editorContainer = ref(null);
 
-// 计算行数
-const lines = computed(() => {
-    if (!props.modelValue) return [1];
-    return props.modelValue.split("\n");
-});
-
-const handleInput = (e) => {
-    // 输入法正在输入时，不处理
-    if (isComposing.value) {
-        return;
-    }
-
-    const value = e.target.value;
-    emit("update:modelValue", value);
-    emit("change", value);
-    updateCursorPosition();
+// Define custom dark theme
+const defineMacroTheme = (monaco) => {
+    monaco.editor.defineTheme("macro-dark", {
+        base: "vs-dark",
+        inherit: true,
+        rules: [
+            { token: "keyword", foreground: "c792ea", fontStyle: "bold" },
+            { token: "string", foreground: "c3e88d" },
+            { token: "number", foreground: "f78c6c" },
+            { token: "function", foreground: "82aaff" },
+            { token: "variable", foreground: "f8f8f2" },
+            { token: "comment", foreground: "676e95", fontStyle: "italic" },
+            { token: "type", foreground: "ffcb6b" },
+            { token: "operator", foreground: "89ddff" },
+            { token: "delimiter", foreground: "8992a6" },
+            { token: "property", foreground: "ffcb6b" },
+        ],
+        colors: {
+            "editor.background": "#0f172a",
+            "editor.foreground": "#f1f5f9",
+            "editor.lineHighlightBackground": "#1e293b",
+            "editor.selectionBackground": "#334155",
+            "editorCursor.foreground": "#6366f1",
+            "editorLineNumber.foreground": "#64748b",
+            "editorLineNumber.activeForeground": "#94a3b8",
+            "editor.inactiveSelectionBackground": "#1e293b",
+            "editor.selectionHighlightBackground": "#33415580",
+            "editorIndentGuide.background": "#1e293b",
+            "editorIndentGuide.activeBackground": "#334155",
+            "editorBracketMatch.background": "#334155",
+            "editorBracketMatch.border": "#6366f1",
+        },
+    });
 };
 
-// 输入法开始
-const handleCompositionStart = () => {
-    isComposing.value = true;
-};
+// Initialize editor
+const initEditor = async () => {
+    if (!editorContainer.value) return;
 
-// 输入法结束
-const handleCompositionEnd = (e) => {
-    isComposing.value = false;
-    const value = e.target.value;
-    emit("update:modelValue", value);
-    emit("change", value);
-    updateCursorPosition();
-};
+    // Dynamically import Monaco Editor
+    try {
+        const monacoModule = await import("monaco-editor");
+        monaco = monacoModule;
 
-const handleKeydown = (e) => {
-    // 输入法正在输入时，不处理特殊键
-    if (isComposing.value) {
-        return;
-    }
+        // Define custom theme
+        defineMacroTheme(monaco);
 
-    // Ctrl+S 保存
-    if ((e.ctrlKey || e.metaKey) && e.key === "s") {
-        e.preventDefault();
-        emit("save", textareaRef.value.value);
-        return;
-    }
-
-    // Tab 键支持
-    if (e.key === "Tab" && !props.readOnly) {
-        e.preventDefault();
-        const textarea = e.target;
-        const start = textarea.selectionStart;
-        const end = textarea.selectionEnd;
-        const value = textarea.value;
-
-        // 插入两个空格
-        const newValue =
-            value.substring(0, start) + "  " + value.substring(end);
-        textarea.value = newValue;
-
-        // 恢复光标位置
-        textarea.selectionStart = textarea.selectionEnd = start + 2;
-
-        // 触发更新
-        emit("update:modelValue", newValue);
-        emit("change", newValue);
-        return;
-    }
-
-    // 自动括号匹配（仅在英文输入状态下）
-    if (!props.readOnly && !e.ctrlKey && !e.metaKey && !e.altKey) {
-        const pairs = {
-            "(": ")",
-            "[": "]",
-            "{": "}",
-            '"': '"',
-            "'": "'",
+        // Merge options
+        const editorOptions = {
+            value: props.modelValue,
+            language: props.language,
+            theme: props.theme,
+            readOnly: props.readOnly,
+            automaticLayout: true,
+            fontFamily: "'JetBrains Mono', 'Fira Code', 'Consolas', monospace",
+            fontSize: 14,
+            lineHeight: 22,
+            minimap: {
+                enabled: true,
+                scale: 0.8,
+                maxColumn: 100,
+            },
+            scrollBeyondLastLine: false,
+            wordWrap: "off",
+            tabSize: 2,
+            insertSpaces: true,
+            renderLineHighlight: "all",
+            cursorBlinking: "smooth",
+            cursorSmoothCaretAnimation: "on",
+            smoothScrolling: true,
+            padding: {
+                top: 12,
+                bottom: 12,
+            },
+            bracketPairColorization: {
+                enabled: true,
+            },
+            guides: {
+                bracketPairs: true,
+                indentation: true,
+            },
+            ...props.options,
         };
 
-        if (pairs[e.key]) {
-            const textarea = e.target;
-            const start = textarea.selectionStart;
-            const end = textarea.selectionEnd;
-            const value = textarea.value;
-            const selectedText = value.substring(start, end);
-            const closeChar = pairs[e.key];
+        // Create editor
+        editor = monaco.editor.create(editorContainer.value, editorOptions);
 
-            e.preventDefault();
-            const newValue =
-                value.substring(0, start) +
-                e.key +
-                selectedText +
-                closeChar +
-                value.substring(end);
-            textarea.value = newValue;
+        // Listen for content changes
+        editor.onDidChangeModelContent(() => {
+            const value = editor.getValue();
+            emit("update:modelValue", value);
+            emit("change", value);
+        });
 
-            // 光标放在插入的字符后面
-            textarea.selectionStart = textarea.selectionEnd = start + 1;
+        // Listen for save (Ctrl+S)
+        editor.addCommand(monaco.KeyMod.CtrlCmd | monaco.KeyCode.KeyS, () => {
+            emit("save", editor.getValue());
+        });
 
-            emit("update:modelValue", newValue);
-            emit("change", newValue);
-        }
+        // Focus on mount
+        editor.focus();
+
+        // Emit editor mounted event
+        emit("editor-mounted", editor);
+    } catch (error) {
+        console.error("Failed to load Monaco Editor:", error);
     }
 };
 
-const syncScroll = (e) => {
-    const lineNumbers = e.target.previousElementSibling;
-    if (lineNumbers) {
-        lineNumbers.scrollTop = e.target.scrollTop;
-    }
-};
-
-const updateCursorPosition = () => {
-    if (!textareaRef.value) return;
-
-    const textarea = textareaRef.value;
-    const text = textarea.value.substring(0, textarea.selectionStart);
-    const lines = text.split("\n");
-
-    cursorPosition.value = {
-        line: lines.length,
-        column: lines[lines.length - 1].length + 1,
-    };
-};
-
-const getValue = () => {
-    return textareaRef.value ? textareaRef.value.value : "";
-};
-
-const setValue = (value) => {
-    if (textareaRef.value) {
-        textareaRef.value.value = value;
-    }
-};
-
-const focus = () => {
-    if (textareaRef.value) {
-        textareaRef.value.focus();
-    }
-};
-
-defineExpose({
-    getValue,
-    setValue,
-    focus,
-});
-
-// 监听外部值变化
+// Update editor value
 watch(
     () => props.modelValue,
     (newValue) => {
-        if (textareaRef.value && textareaRef.value.value !== newValue) {
-            textareaRef.value.value = newValue;
+        if (editor && editor.getValue() !== newValue) {
+            editor.setValue(newValue);
         }
     },
 );
 
-onMounted(() => {
-    nextTick(() => {
-        updateCursorPosition();
-
-        // 添加输入法事件监听
-        if (textareaRef.value) {
-            textareaRef.value.addEventListener(
-                "compositionstart",
-                handleCompositionStart,
-            );
-            textareaRef.value.addEventListener(
-                "compositionend",
-                handleCompositionEnd,
-            );
+// Update language
+watch(
+    () => props.language,
+    (newLanguage) => {
+        if (editor) {
+            const model = editor.getModel();
+            if (model) {
+                monaco.editor.setModelLanguage(model, newLanguage);
+            }
         }
-    });
+    },
+);
+
+// Update readOnly
+watch(
+    () => props.readOnly,
+    (readOnly) => {
+        if (editor) {
+            editor.updateOptions({ readOnly });
+        }
+    },
+);
+
+// Update theme
+watch(
+    () => props.theme,
+    (newTheme) => {
+        if (editor && monaco) {
+            monaco.editor.setTheme(newTheme);
+        }
+    },
+);
+
+// Get editor value
+const getValue = () => {
+    return editor ? editor.getValue() : "";
+};
+
+// Set editor value
+const setValue = (value) => {
+    if (editor) {
+        editor.setValue(value);
+    }
+};
+
+// Focus editor
+const focus = () => {
+    if (editor) {
+        editor.focus();
+    }
+};
+
+// Resize editor
+const resize = () => {
+    if (editor) {
+        editor.layout();
+    }
+};
+
+// Expose methods
+defineExpose({
+    getValue,
+    setValue,
+    focus,
+    resize,
+    getEditor: () => editor,
+});
+
+onMounted(async () => {
+    await nextTick();
+    await initEditor();
 });
 
 onBeforeUnmount(() => {
-    if (textareaRef.value) {
-        textareaRef.value.removeEventListener(
-            "compositionstart",
-            handleCompositionStart,
-        );
-        textareaRef.value.removeEventListener(
-            "compositionend",
-            handleCompositionEnd,
-        );
+    if (editor) {
+        editor.dispose();
+        editor = null;
     }
 });
 </script>
 
 <style scoped>
-.simple-editor-container {
+.monaco-editor-container {
     width: 100%;
     height: 100%;
-    min-height: 200px;
-    position: relative;
-    display: flex;
-    background: #1e1e1e;
-    border-radius: 4px;
+    min-height: 150px;
+    border-radius: var(--radius-md);
     overflow: hidden;
+    background: var(--bg-base);
 }
 
-.line-numbers {
-    width: 45px;
-    background: #1e1e1e;
-    border-right: 1px solid #3c3c3c;
-    color: #858585;
-    font-family: "Consolas", "Monaco", "Courier New", monospace;
-    font-size: 14px;
-    line-height: 1.6;
-    padding: 12px 0;
-    text-align: right;
-    padding-right: 10px;
-    overflow: hidden;
-    user-select: none;
-    flex-shrink: 0;
+.monaco-editor-container :deep(.monaco-editor) {
+    padding-top: 12px;
+    padding-bottom: 12px;
 }
 
-.line-number {
-    height: 22.4px;
-    padding-right: 8px;
-    box-sizing: border-box;
+.monaco-editor-container :deep(.minimap) {
+    opacity: 0.8;
 }
 
-.code-textarea {
-    flex: 1;
-    background: transparent;
-    border: none;
-    outline: none;
-    color: #d4d4d4;
-    font-family: "Consolas", "Monaco", "Courier New", monospace;
-    font-size: 14px;
-    line-height: 1.6;
-    padding: 12px;
-    resize: none;
-    tab-size: 2;
-    white-space: pre;
-    overflow-wrap: normal;
-    overflow-x: auto;
-    min-width: 0;
+.monaco-editor-container
+    :deep(.monaco-scrollable-element > .scrollbar > .slider) {
+    background: var(--bg-element);
+    border-radius: var(--radius-full);
 }
 
-.code-textarea::selection {
-    background: #264f78;
-}
-
-.code-textarea:focus {
-    outline: none;
-}
-
-.cursor-status {
-    position: absolute;
-    bottom: 0;
-    right: 0;
-    background: rgba(0, 0, 0, 0.8);
-    color: #858585;
-    font-size: 11px;
-    padding: 3px 8px;
-    font-family: "Consolas", "Monaco", monospace;
-    pointer-events: none;
-    border-top-left-radius: 4px;
-    z-index: 1;
-}
-
-/* 滚动条样式 */
-.code-textarea::-webkit-scrollbar {
-    width: 14px;
-    height: 14px;
-}
-
-.code-textarea::-webkit-scrollbar-track {
-    background: #1e1e1e;
-}
-
-.code-textarea::-webkit-scrollbar-thumb {
-    background: #424242;
-    border-radius: 7px;
-    border: 3px solid #1e1e1e;
-}
-
-.code-textarea::-webkit-scrollbar-thumb:hover {
-    background: #4f4f4f;
-}
-
-.line-numbers::-webkit-scrollbar {
-    width: 0;
+.monaco-editor-container
+    :deep(.monaco-scrollable-element > .scrollbar > .slider:hover) {
+    background: var(--bg-hover);
 }
 </style>

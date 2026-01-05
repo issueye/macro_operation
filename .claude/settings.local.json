@@ -52,7 +52,8 @@
       "Bash(go list:*)",
       "Bash(protoc:*)",
       "Bash(where:*)",
-      "Bash(\"E:\\\\works\\\\golang\\\\bin\\\\protoc-gen-go.exe\" --version)"
+      "Bash(\"E:\\\\works\\\\golang\\\\bin\\\\protoc-gen-go.exe\" --version)",
+      "mcp__mcp-toolkit__list_directory"
     ]
   }
 }

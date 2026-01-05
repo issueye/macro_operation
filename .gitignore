@@ -18,7 +18,6 @@ macros/
 backups/
 
 # Go workspace file
-go.work
 
 # IDE
 .vscode/
