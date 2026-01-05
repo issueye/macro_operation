@@ -1,0 +1,12 @@
+{
+  "name": "macro-ui",
+  "description": "宏录制和回放工具",
+  "build": {
+    "dev": "npm run build",
+    "prod": "npm run build"
+  },
+  "frontend": {
+    "dir": "frontend"
+  },
+  "version": "1.0.0"
+}

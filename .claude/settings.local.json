@@ -40,7 +40,19 @@
       "Bash(wails build)",
       "Bash(wails build:*)",
       "Bash(go mod:*)",
-      "Bash(./wails-template.exe)"
+      "Bash(./wails-template.exe)",
+      "Bash(gcc:*)",
+      "Bash(set:*)",
+      "Bash(go clean -modcache)",
+      "mcp__fetch__fetch",
+      "Bash(gh repo clone:*)",
+      "Bash(mkdir:*)",
+      "Bash(GOPROXY=https://proxy.golang.org,direct go mod:*)",
+      "Bash(GOPRIVATE=github.com/dop251/goja,github.com/go-vgo/robotgo,github.com/robotn/gohook GONOSUMDB=github.com/dop251/goja,github.com/go-vgo/robotgo,github.com/robotn/gohook go mod:*)",
+      "Bash(go list:*)",
+      "Bash(protoc:*)",
+      "Bash(where:*)",
+      "Bash(\"E:\\\\works\\\\golang\\\\bin\\\\protoc-gen-go.exe\" --version)"
     ]
   }
 }

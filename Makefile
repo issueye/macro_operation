@@ -1,69 +1,101 @@
-.PHONY: all build run test clean deps install
-
-# 变量定义
-BINARY_NAME=macro-recorder
-VERSION?=1.0.0
-BUILD_TIME=$(shell date -u '+%Y-%m-%d_%H:%M:%S')
-LDFLAGS=-X main.Version=${VERSION} -X main.BuildTime=${BUILD_TIME}
+.PHONY: all deps proto build build-engine build-ui run-engine run-ui clean help
 
 # 默认目标
-all: deps build
+all: deps proto build
 
 # 安装依赖
 deps:
+	@echo "Installing Go dependencies..."
+	cd macro-engine && go mod tidy
+	cd macro-ui && go mod tidy
+	@echo "Installing frontend dependencies..."
+	cd macro-ui/frontend && npm install
+
+# 生成 proto 文件
+proto:
+	@echo "Generating gRPC code from proto files..."
+	@if command -v protoc >/dev/null 2>&1; then \
+		protoc --go_out=./macro-engine --go_opt=paths=source_relative \
+		--go-grpc_out=./macro-engine --go-grpc_opt=paths=source_relative \
+		-I./macro-engine/proto ./macro-engine/proto/*.proto; \
+		echo "Proto files generated successfully"; \
+	else \
+		echo "protoc not found, please install protoc and protoc-gen-go"; \
+		echo "Windows: choco install protoc"; \
+		echo "Or download from: https://github.com/protocolbuffers/protobuf/releases"; \
+	fi
+
+# 构建引擎服务
+build-engine:
+	@echo "Building macro-engine..."
+	cd macro-engine && go build -o ../bin/macro-engine.exe ./cmd
+
+# 构建 UI 应用
+build-ui: deps proto
+	@echo "Building macro-ui..."
+	cd macro-ui/frontend && npm run build
+	cd macro-ui && wails build
+
+# 构建所有
+build: build-engine build-ui
+
+# 运行引擎服务（开发模式）
+run-engine:
+	@echo "Starting macro-engine gRPC server on port 50051..."
+	cd macro-engine && go run ./cmd
+
+# 运行 UI 应用
+run-ui:
+	@echo "Starting macro-ui (Wails)..."
+	cd macro-ui && wails dev
+
+# 启动完整应用（需要先启动引擎）
+run-all: run-engine &
+	@sleep 3
+	run-ui
+
+# 清理构建产物
+clean:
+	@echo "Cleaning build artifacts..."
+	rm -rf bin/
+	rm -rf macro-ui/frontend/dist/
+	rm -f macro-ui/macro-ui.exe
+	go clean -cache
+
+# 初始化项目（首次克隆后运行）
+init: deps proto build
+
+# 旧版命令兼容
+deps-legacy:
 	go mod download
 	go mod tidy
 
-# 构建
-build:
-	@echo "Building ${BINARY_NAME}..."
-	go build -ldflags "${LDFLAGS}" -o bin/${BINARY_NAME} ./cmd/macro
+build-legacy:
+	@echo "Legacy build command - use 'make build' for new architecture"
 
-# 运行
-run:
-	go run ./cmd/macro
+run-legacy:
+	@echo "Legacy run command - use 'make run-ui' for new architecture"
 
-# 测试
-test:
-	go test -v -cover ./...
-
-# 测试覆盖率
-test-coverage:
-	go test -v -coverprofile=coverage.out ./...
-	go tool cover -html=coverage.out -o coverage.html
-
-# 代码检查
-lint:
-	go vet ./...
-	gofmt -l .
-
-# 格式化代码
-fmt:
-	gofmt -w .
-
-# 清理
-clean:
-	rm -rf bin/
-	rm -rf coverage.out coverage.html
-
-# 运行所有检查
-check: fmt lint test
-
-# 构建所有平台
-build-all:
-	@echo "Building for all platforms..."
-	GOOS=windows GOARCH=amd64 go build -ldflags "${LDFLAGS}" -o dist/${BINARY_NAME}-windows-amd64.exe ./cmd/macro
-	GOOS=darwin GOARCH=amd64 go build -ldflags "${LDFLAGS}" -o dist/${BINARY_NAME}-darwin-amd64 ./cmd/macro
-	GOOS=linux GOARCH=amd64 go build -ldflags "${LDFLAGS}" -o dist/${BINARY_NAME}-linux-amd64 ./cmd/macro
-
-# 帮助
+# 帮助信息
 help:
-	@echo "可用命令:"
-	@echo "  make deps        - 安装依赖"
-	@echo "  make build       - 构建项目"
-	@echo "  make run         - 运行项目"
-	@echo "  make test        - 运行测试"
-	@echo "  make clean       - 清理构建"
-	@echo "  make fmt         - 格式化代码"
-	@echo "  make lint        - 代码检查"
-	@echo "  make build-all   - 构建所有平台"
+	@echo "Macro Operation - 项目构建脚本 (gRPC 分离架构)"
+	@echo ""
+	@echo "使用说明:"
+	@echo "  make all          - 安装依赖、生成 proto、构建所有模块"
+	@echo "  make deps         - 安装 Go 和前端依赖"
+	@echo "  make proto        - 从 proto 文件生成 gRPC 代码"
+	@echo "  make build        - 构建所有模块"
+	@echo "  make build-engine - 只构建引擎服务 (macro-engine)"
+	@echo "  make build-ui     - 只构建 UI 应用 (macro-ui)"
+	@echo "  make run-engine   - 运行引擎服务 (端口 50051)"
+	@echo "  make run-ui       - 运行 UI 应用 (Wails)"
+	@echo "  make run-all      - 运行引擎和 UI（需要两个终端）"
+	@echo "  make clean        - 清理构建产物"
+	@echo "  make init         - 初始化项目（首次使用）"
+	@echo "  make help         - 显示此帮助信息"
+	@echo ""
+	@echo "注意: 运行前请确保已安装:"
+	@echo "  - Go 1.21+"
+	@echo "  - Node.js 18+"
+	@echo "  - protoc (用于生成 gRPC 代码)"
+	@echo "  - Wails CLI: go install github.com/wailsapp/wails/cmd/wails@latest"

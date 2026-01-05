@@ -1,0 +1,160 @@
+syntax = "proto3";
+
+package macro;
+
+option go_package = "github.com/issueye/macro-operation/macro-common/proto;macro";
+
+// 宏自动化引擎服务
+service MacroEngine {
+  // 录制控制
+  rpc StartRecording(StartRecordingRequest) returns (StartRecordingResponse);
+  rpc StopRecording(StopRecordingRequest) returns (StopRecordingResponse);
+  rpc GetRecordingStatus(GetRecordingStatusRequest) returns (GetRecordingStatusResponse);
+
+  // 回放控制
+  rpc PlayScript(PlayScriptRequest) returns (PlayScriptResponse);
+  rpc GetPlaybackStatus(GetPlaybackStatusRequest) returns (GetPlaybackStatusResponse);
+
+  // 宏管理
+  rpc SaveMacro(SaveMacroRequest) returns (SaveMacroResponse);
+  rpc LoadMacro(LoadMacroRequest) returns (LoadMacroResponse);
+  rpc DeleteMacro(DeleteMacroRequest) returns (DeleteMacroResponse);
+  rpc ListMacros(ListMacrosRequest) returns (ListMacrosResponse);
+
+  // 脚本生成
+  rpc GenerateScript(GenerateScriptRequest) returns (GenerateScriptResponse);
+  rpc GetCurrentEvents(GetCurrentEventsRequest) returns (GetCurrentEventsResponse);
+
+  // 系统
+  rpc HealthCheck(HealthCheckRequest) returns (HealthCheckResponse);
+}
+
+// ========== 录制相关 ==========
+
+message StartRecordingRequest {
+  bool clear_previous = 1; // 是否清除之前的事件
+}
+
+message StartRecordingResponse {
+  bool success = 1;
+  string message = 2;
+}
+
+message StopRecordingRequest {}
+
+message StopRecordingResponse {
+  bool success = 1;
+  int32 event_count = 2;
+  string message = 3;
+}
+
+message GetRecordingStatusRequest {}
+
+message GetRecordingStatusResponse {
+  bool is_recording = 1;
+  int32 event_count = 2;
+}
+
+// ========== 回放相关 ==========
+
+message PlayScriptRequest {
+  string script = 1;
+  double speed = 2; // 播放速度倍率 (1.0 = 正常)
+}
+
+message PlayScriptResponse {
+  bool success = 1;
+  string message = 2;
+}
+
+message GetPlaybackStatusRequest {}
+
+message GetPlaybackStatusResponse {
+  bool is_playing = 1;
+  int32 progress = 2; // 进度百分比
+}
+
+// ========== 宏管理相关 ==========
+
+message MacroInfo {
+  string name = 1;
+  string created_at = 2;
+  string updated_at = 3;
+  int32 event_count = 4;
+  string script = 5; // 脚本内容
+}
+
+message SaveMacroRequest {
+  string name = 1;
+  string script = 2;
+}
+
+message SaveMacroResponse {
+  bool success = 1;
+  string message = 2;
+}
+
+message LoadMacroRequest {
+  string name = 1;
+}
+
+message LoadMacroResponse {
+  bool success = 1;
+  MacroInfo macro = 2;
+  string message = 3;
+}
+
+message DeleteMacroRequest {
+  string name = 1;
+}
+
+message DeleteMacroResponse {
+  bool success = 1;
+  string message = 2;
+}
+
+message ListMacrosRequest {}
+
+message ListMacrosResponse {
+  bool success = 1;
+  repeated MacroInfo macros = 2;
+  string message = 3;
+}
+
+// ========== 脚本生成相关 ==========
+
+message GenerateScriptRequest {
+  string name = 1;
+}
+
+message GenerateScriptResponse {
+  bool success = 1;
+  string script = 2;
+  string message = 3;
+}
+
+message EventData {
+  string type = 1;      // 事件类型: keydown, keyup, mousedown, mouseup, mousemove, wheel
+  int32 key_code = 2;   // 键值
+  int32 x = 3;          // X 坐标
+  int32 y = 4;          // Y 坐标
+  int32 button = 5;     // 鼠标按钮
+  int64 timestamp = 6;  // 时间戳
+  int32 delta = 7;      // 滚轮增量
+}
+
+message GetCurrentEventsRequest {}
+
+message GetCurrentEventsResponse {
+  bool success = 1;
+  repeated EventData events = 2;
+}
+
+// ========== 系统相关 ==========
+
+message HealthCheckRequest {}
+
+message HealthCheckResponse {
+  bool healthy = 1;
+  string version = 2;
+}
