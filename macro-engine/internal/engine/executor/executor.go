@@ -5,6 +5,8 @@ import (
 	"sync"
 	"time"
 
+	"macro-engine/internal/selection"
+
 	"github.com/dop251/goja"
 	"github.com/go-vgo/robotgo"
 	"github.com/go-vgo/robotgo/clipboard"
@@ -196,6 +198,16 @@ func (e *Executor) registerRobotAPI(vm *goja.Runtime, speed float64) error {
 		fmt.Println("[JS]", msg)
 	}
 
+	// 获取选中的文字
+	getSelectedText := func() string {
+		text, err := selection.GetSelectedText()
+		if err != nil {
+			fmt.Printf("[JS] getSelectedText error: %v\n", err)
+			return ""
+		}
+		return text
+	}
+
 	// 设置全局对象
 	vm.Set("mouseMove", mouseMove)
 	vm.Set("mouseClick", mouseClick)
@@ -209,6 +221,7 @@ func (e *Executor) registerRobotAPI(vm *goja.Runtime, speed float64) error {
 	vm.Set("sleep", sleep)
 	vm.Set("screenshot", screenshot)
 	vm.Set("log", log)
+	vm.Set("getSelectedText", getSelectedText)
 
 	return nil
 }

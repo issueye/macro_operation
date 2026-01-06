@@ -6,6 +6,7 @@ import (
 	"time"
 
 	"macro-engine/internal/model"
+	"macro-engine/internal/selection"
 
 	hook "github.com/robotn/gohook"
 )
@@ -20,6 +21,9 @@ type Capture struct {
 	eventCallback  func(model.Event)     // 实时事件回调
 	pendingKeyDown map[uint16]hook.Event // 待处理的 KeyDown 事件(keycode -> event)
 	lastContent    string                // 上一次剪贴板内容
+	isDragging     bool                  // 是否正在拖拽选择文字
+	dragStartX     int                   // 拖拽起始 X 坐标
+	dragStartY     int                   // 拖拽起始 Y 坐标
 }
 
 // NewCapture 创建新的捕获器
@@ -68,6 +72,9 @@ func (c *Capture) ClearEvents() {
 	c.mutex.Lock()
 	c.events = make([]model.Event, 0)
 	c.pendingKeyDown = make(map[uint16]hook.Event)
+	c.isDragging = false
+	c.dragStartX = 0
+	c.dragStartY = 0
 	c.mutex.Unlock()
 }
 
@@ -102,6 +109,68 @@ func (c *Capture) listenEvents() {
 		case <-c.stopCh:
 			return
 		case ev := <-hookEvents:
+			// 处理鼠标按下 - 检测是否已有选中的文字
+			if ev.Kind == hook.MouseDown && ev.Button == 1 {
+				c.mutex.Lock()
+				c.isDragging = true
+				c.dragStartX = int(ev.X)
+				c.dragStartY = int(ev.Y)
+				c.mutex.Unlock()
+
+				// 检测当前是否有选中的文字
+				if text, err := selection.GetSelectedText(); err == nil && text != "" {
+					selectionEvent := model.Event{
+						Type:      model.Selection,
+						X:         int(ev.X),
+						Y:         int(ev.Y),
+						Text:      text,
+						Timestamp: time.Now().UnixMilli(),
+					}
+					c.mutex.Lock()
+					c.events = append(c.events, selectionEvent)
+					c.mutex.Unlock()
+
+					if c.eventCallback != nil {
+						c.eventCallback(selectionEvent)
+					}
+					fmt.Printf("检测到选中文字: %q\n", text)
+				}
+			}
+
+			// 处理鼠标拖拽结束（MouseUp）
+			if ev.Kind == hook.MouseUp && ev.Button == 1 {
+				c.mutex.Lock()
+				wasDragging := c.isDragging
+				dragStartX, dragStartY := c.dragStartX, c.dragStartY
+				c.isDragging = false
+				c.mutex.Unlock()
+
+				// 如果之前在拖拽，检测是否选中了文字
+				if wasDragging {
+					// 移动鼠标到当前坐标来获取选中的文字
+					// 由于 gohook 已经捕获了鼠标移动，这里直接获取剪贴板内容
+					if text, err := selection.GetSelectedText(); err == nil && text != "" {
+						selectionEvent := model.Event{
+							Type:      model.Selection,
+							X:         int(ev.X),
+							Y:         int(ev.Y),
+							Text:      text,
+							Timestamp: time.Now().UnixMilli(),
+						}
+						c.mutex.Lock()
+						c.events = append(c.events, selectionEvent)
+						c.mutex.Unlock()
+
+						if c.eventCallback != nil {
+							c.eventCallback(selectionEvent)
+						}
+						fmt.Printf("拖拽选择文字: %q\n", text)
+					}
+				}
+				_ = dragStartX
+				_ = dragStartY
+			}
+
 			// 处理键盘事件配对逻辑
 			var modelEvent model.Event
 			if ev.Kind == hook.KeyDown { // KeyDown
@@ -134,6 +203,14 @@ func (c *Capture) listenEvents() {
 					}
 				}
 				// 记录 KeyUp 事件
+				modelEvent = convertToModelEvent(ev)
+			} else if ev.Kind == hook.MouseDrag {
+				// MouseDrag 事件直接转换
+				modelEvent = convertToModelEvent(ev)
+			} else if ev.Kind == hook.MouseDown || ev.Kind == hook.MouseUp ||
+				ev.Kind == hook.MouseMove || ev.Kind == hook.MouseWheel ||
+				ev.Kind == hook.MouseHold {
+				// 其他鼠标事件直接转换
 				modelEvent = convertToModelEvent(ev)
 			} else {
 				// 其他事件类型

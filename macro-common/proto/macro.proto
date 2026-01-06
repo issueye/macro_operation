@@ -134,7 +134,7 @@ message GenerateScriptResponse {
 }
 
 message EventData {
-  string type = 1;      // 事件类型: keydown, keyup, mousedown, mouseup, mousemove, wheel
+  string type = 1;      // 事件类型: keydown, keyup, mousedown, mouseup, mousemove, wheel, selection
   int32 key_code = 2;   // 键值
   int32 x = 3;          // X 坐标
   int32 y = 4;          // Y 坐标
@@ -142,6 +142,7 @@ message EventData {
   int64 timestamp = 6;  // 时间戳
   int32 delta = 7;      // 滚轮增量
   string chars = 8;     // 字符（用于字符输入事件）
+  string text = 9;      // 选中的文字
 }
 
 message GetCurrentEventsRequest {}

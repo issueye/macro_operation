@@ -159,6 +159,13 @@ func (g *Generator) generateEvent(sb *strings.Builder, ev model.Event) {
 		// case model.EventTypeKeyUp:
 		// 	keyName := g.getKeyName(ev.KeyCode)
 		// 	sb.WriteString(fmt.Sprintf("  keyUp('%s');\n", keyName))
+
+	case model.Selection:
+		// 文字选择事件，记录选中的文字
+		if ev.Text != "" {
+			escapedText := escapeJavaScriptString(ev.Text)
+			sb.WriteString(fmt.Sprintf("  let selectedText = getSelectedText(); // 选中: %s\n", escapedText))
+		}
 	}
 }
 
@@ -223,4 +230,26 @@ func (g *Generator) getKeyName(keyCode int) string {
 	}
 
 	return model.NormalizeKeyName(name)
+}
+
+// escapeJavaScriptString 转义 JavaScript 字符串
+func escapeJavaScriptString(s string) string {
+	result := strings.Builder{}
+	for _, ch := range s {
+		switch ch {
+		case '\\':
+			result.WriteString("\\\\")
+		case '"':
+			result.WriteString("\\\"")
+		case '\n':
+			result.WriteString("\\n")
+		case '\r':
+			result.WriteString("\\r")
+		case '\t':
+			result.WriteString("\\t")
+		default:
+			result.WriteRune(ch)
+		}
+	}
+	return result.String()
 }

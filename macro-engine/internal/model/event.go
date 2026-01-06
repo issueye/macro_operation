@@ -34,6 +34,9 @@ const (
 	EventTypeWheelUp       EventType = hook.WheelUp       // = -1
 	EventTypeWheelDown     EventType = hook.WheelDown     // = 1
 
+	// 文字选择
+	EventTypeSelection EventType = 100 // 文字选择事件
+
 	// 保持向后兼容的别名
 	KeyDown       = EventTypeKeyDown
 	KeyHold       = EventTypeKeyHold
@@ -48,6 +51,7 @@ const (
 	CharUndefined = EventTypeCharUndefined
 	WheelUp       = EventTypeWheelUp
 	WheelDown     = EventTypeWheelDown
+	Selection     = EventTypeSelection
 )
 
 func (e EventType) String() string {
@@ -72,12 +76,13 @@ type Event struct {
 	Y         int         `json:"y"`
 	Button    MouseButton `json:"button"`
 	Timestamp int64       `json:"timestamp"`
-	Delta     int         `json:"delta"` // 滚轮增量
+	Delta     int         `json:"delta"`   // 滚轮增量
+	Text      string      `json:"text"`    // 选中的文字
 }
 
 func (e Event) String() string {
-	return fmt.Sprintf("Event{Type: %s, KeyCode: %d, Chars: %s, X: %d, Y: %d, Button: %d, Timestamp: %d, Delta: %d}",
-		e.Type.String(), uint16(e.KeyCode), GetKeyName(uint16(e.Chars)), e.X, e.Y, e.Button, e.Timestamp, e.Delta)
+	return fmt.Sprintf("Event{Type: %s, KeyCode: %d, Chars: %s, X: %d, Y: %d, Button: %d, Timestamp: %d, Delta: %d, Text: %q}",
+		e.Type.String(), uint16(e.KeyCode), GetKeyName(uint16(e.Chars)), e.X, e.Y, e.Button, e.Timestamp, e.Delta, e.Text)
 }
 
 func GetKeyCode(key string) uint16 {
@@ -102,6 +107,7 @@ var eventNameMap = map[EventType]string{
 	CharUndefined: "CharUndefined",
 	WheelUp:       "WheelUp",
 	WheelDown:     "WheelDown",
+	Selection:     "Selection",
 }
 
 var nameEventMap = map[string]EventType{
@@ -118,6 +124,7 @@ var nameEventMap = map[string]EventType{
 	"CharUndefined": CharUndefined,
 	"WheelUp":       WheelUp,
 	"WheelDown":     WheelDown,
+	"Selection":     Selection,
 }
 
 func GetEventName(eventType EventType) string {

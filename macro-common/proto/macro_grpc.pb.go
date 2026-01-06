@@ -2,7 +2,7 @@
 // versions:
 // - protoc-gen-go-grpc v1.6.0
 // - protoc             v3.20.1
-// source: macro.proto
+// source: proto/macro.proto
 
 package macro
 
@@ -549,5 +549,5 @@ var MacroEngine_ServiceDesc = grpc.ServiceDesc{
 		},
 	},
 	Streams:  []grpc.StreamDesc{},
-	Metadata: "macro.proto",
+	Metadata: "proto/macro.proto",
 }
