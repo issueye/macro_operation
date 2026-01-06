@@ -11,26 +11,41 @@ const (
 	// HookDisabled EventType = hook.HookDisabled
 
 	// 键盘
-	KeyDown EventType = hook.KeyDown
-	KeyHold EventType = hook.KeyHold
-	KeyUp   EventType = hook.KeyUp
+	EventTypeKeyDown EventType = hook.KeyDown // = 4
+	EventTypeKeyHold EventType = hook.KeyHold // = 3
+	EventTypeKeyUp   EventType = hook.KeyUp   // = 5
 
 	// 鼠标
-	MouseDown EventType = hook.MouseDown
-	MouseHold EventType = hook.MouseHold
-	MouseUp   EventType = hook.MouseUp
+	EventTypeMouseDown EventType = hook.MouseDown // = 7
+	EventTypeMouseHold EventType = hook.MouseHold // = 8
+	EventTypeMouseUp   EventType = hook.MouseUp   // = 6
 
 	// 鼠标
-	MouseMove  EventType = hook.MouseMove
-	MouseDrag  EventType = hook.MouseDrag
-	MouseWheel EventType = hook.MouseWheel
+	EventTypeMouseMove  EventType = hook.MouseMove  // = 9
+	EventTypeMouseDrag  EventType = hook.MouseDrag  // = 10
+	EventTypeMouseWheel EventType = hook.MouseWheel // = 11
 
-	FakeEvent EventType = hook.FakeEvent
+	EventTypeFakeEvent EventType = hook.FakeEvent // = 12
 
 	// Keychar could be v
-	CharUndefined EventType = hook.CharUndefined
-	WheelUp       EventType = hook.WheelUp
-	WheelDown     EventType = hook.WheelDown
+	EventTypeCharUndefined EventType = hook.CharUndefined // = 65535
+	EventTypeWheelUp       EventType = hook.WheelUp       // = -1
+	EventTypeWheelDown     EventType = hook.WheelDown     // = 1
+
+	// 保持向后兼容的别名
+	KeyDown       = EventTypeKeyDown
+	KeyHold       = EventTypeKeyHold
+	KeyUp         = EventTypeKeyUp
+	MouseDown     = EventTypeMouseDown
+	MouseHold     = EventTypeMouseHold
+	MouseUp       = EventTypeMouseUp
+	MouseMove     = EventTypeMouseMove
+	MouseDrag     = EventTypeMouseDrag
+	MouseWheel    = EventTypeMouseWheel
+	FakeEvent     = EventTypeFakeEvent
+	CharUndefined = EventTypeCharUndefined
+	WheelUp       = EventTypeWheelUp
+	WheelDown     = EventTypeWheelDown
 )
 
 // MouseButton 鼠标按钮

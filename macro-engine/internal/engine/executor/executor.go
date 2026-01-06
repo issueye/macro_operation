@@ -13,6 +13,7 @@ import (
 // Executor 脚本执行器
 type Executor struct {
 	isPlaying bool
+	speed     float64 // 播放速度倍率 (1.0 = 正常, 2.0 = 2倍速)
 	mutex     sync.RWMutex
 	vm        *goja.Runtime
 }
@@ -21,7 +22,24 @@ type Executor struct {
 func NewExecutor() *Executor {
 	return &Executor{
 		isPlaying: false,
+		speed:     1.0,
 	}
+}
+
+// SetSpeed 设置播放速度
+func (e *Executor) SetSpeed(speed float64) {
+	e.mutex.Lock()
+	defer e.mutex.Unlock()
+	if speed > 0 {
+		e.speed = speed
+	}
+}
+
+// GetSpeed 获取播放速度
+func (e *Executor) GetSpeed() float64 {
+	e.mutex.RLock()
+	defer e.mutex.RUnlock()
+	return e.speed
 }
 
 // Execute 执行脚本
@@ -43,8 +61,8 @@ func (e *Executor) Execute(script string) error {
 	// 创建 JavaScript 运行时
 	vm := goja.New()
 
-	// 注册机器人 API
-	if err := e.registerRobotAPI(vm); err != nil {
+	// 注册机器人 API（传入速度参数）
+	if err := e.registerRobotAPI(vm, e.speed); err != nil {
 		return fmt.Errorf("failed to register robot API: %w", err)
 	}
 
@@ -93,7 +111,19 @@ func typeUnicode(text string) error {
 }
 
 // registerRobotAPI 注册机器人 API
-func (e *Executor) registerRobotAPI(vm *goja.Runtime) error {
+func (e *Executor) registerRobotAPI(vm *goja.Runtime, speed float64) error {
+	// 调整延迟时间
+	adjustDelay := func(baseDelay int) int {
+		if speed <= 0 {
+			return baseDelay
+		}
+		adjusted := int(float64(baseDelay) / speed)
+		if adjusted < 1 {
+			return 1
+		}
+		return adjusted
+	}
+
 	// 鼠标移动
 	mouseMove := func(x, y int) {
 		robotgo.MoveMouse(x, y)
@@ -111,7 +141,11 @@ func (e *Executor) registerRobotAPI(vm *goja.Runtime) error {
 
 	// 鼠标滚轮
 	mouseScroll := func(delta int) {
-		robotgo.ScrollDir(delta, "up")
+		if delta > 0 {
+			robotgo.ScrollDir(10, "up")
+		} else {
+			robotgo.ScrollDir(10, "down")
+		}
 	}
 
 	// 键盘按下
@@ -139,14 +173,19 @@ func (e *Executor) registerRobotAPI(vm *goja.Runtime) error {
 		robotgo.KeyTap(key)
 	}
 
-	// 睡眠
+	// 睡眠（支持速度调整）
 	sleep := func(ms int) {
-		time.Sleep(time.Duration(ms) * time.Millisecond)
+		adjusted := adjustDelay(ms)
+		time.Sleep(time.Duration(adjusted) * time.Millisecond)
 	}
 
 	// 截图
 	screenshot := func() string {
 		bitmap := robotgo.CaptureScreen(0, 0, 0, 0)
+		if bitmap == nil {
+			fmt.Printf("[ERROR] screenshot failed: bitmap is nil\n")
+			return ""
+		}
 		defer robotgo.FreeBitmap(bitmap)
 		img := robotgo.ToImage(bitmap)
 		return robotgo.ToStringImg(img, "png")
@@ -166,7 +205,7 @@ func (e *Executor) registerRobotAPI(vm *goja.Runtime) error {
 	vm.Set("keyUp", keyUp)
 	vm.Set("keyType", keyType)
 	vm.Set("keyTap", keyTap)
-	vm.Set("keyShortcut", keyShortcut) // 快捷键
+	vm.Set("keyShortcut", keyShortcut)
 	vm.Set("sleep", sleep)
 	vm.Set("screenshot", screenshot)
 	vm.Set("log", log)

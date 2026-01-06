@@ -36,14 +36,16 @@ func NewRecordService() *RecordService {
 		actionCallback: make(map[HotkeyAction]func()),
 	}
 
-	// 注册默认快捷键
-	rs.registerDefaultHotkeys()
+	// TODO: 重新启用快捷键功能
+	// rs.registerDefaultHotkeys()
 
 	return rs
 }
 
 // registerDefaultHotkeys 注册默认快捷键
 func (s *RecordService) registerDefaultHotkeys() {
+	// 快捷键功能暂时禁用，等待 capture.go 更新
+	/*
 	// Ctrl+R: 切换录制状态
 	s.capture.RegisterHotkey("ctrl+r", func() {
 		s.handleToggleRecording()
@@ -63,6 +65,7 @@ func (s *RecordService) registerDefaultHotkeys() {
 	s.capture.RegisterHotkey("ctrl+shift+r", func() {
 		s.handleStopAndSave()
 	})
+	*/
 }
 
 // handleToggleRecording 处理切换录制状态

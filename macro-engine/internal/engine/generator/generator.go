@@ -9,11 +9,38 @@ import (
 
 // Generator 脚本生成器
 type Generator struct {
+	MinDelayThreshold int // 最小延迟阈值（毫秒），小于此值不输出 sleep
+}
+
+// GeneratorOption 生成器配置选项
+type GeneratorOption func(*Generator)
+
+// WithMinDelayThreshold 设置最小延迟阈值
+func WithMinDelayThreshold(threshold int) GeneratorOption {
+	return func(g *Generator) {
+		g.MinDelayThreshold = threshold
+	}
 }
 
 // NewGenerator 创建新的生成器
-func NewGenerator() *Generator {
-	return &Generator{}
+func NewGenerator(opts ...GeneratorOption) *Generator {
+	g := &Generator{
+		MinDelayThreshold: 50, // 默认 50ms 阈值
+	}
+	for _, opt := range opts {
+		opt(g)
+	}
+	return g
+}
+
+// GenerateWithConfig 使用指定配置生成脚本
+func (g *Generator) GenerateWithConfig(name string, events []model.Event, minDelay int) (string, error) {
+	// 临时修改阈值
+	oldThreshold := g.MinDelayThreshold
+	g.MinDelayThreshold = minDelay
+	defer func() { g.MinDelayThreshold = oldThreshold }()
+
+	return g.Generate(name, events)
 }
 
 // Generate 生成脚本
@@ -33,43 +60,40 @@ function main() {
 	optimizedEvents := g.optimizeEvents(events)
 
 	// 生成事件处理代码
+	var accumulatedDelay int64 = 0
+	lastEventType := model.EventType(0)
+
 	for i, ev := range optimizedEvents {
-		// 添加延迟（基于时间戳差值）
+		// 计算延迟
 		if i > 0 {
 			delay := ev.Timestamp - optimizedEvents[i-1].Timestamp
-			if delay > 10 {
-				sb.WriteString(fmt.Sprintf("  sleep(%d); // 延迟\n", delay))
+
+			// 智能判断是否需要添加 sleep
+			needSleep := g.shouldAddSleep(ev.Type, lastEventType, delay, accumulatedDelay)
+
+			if needSleep {
+				// 输出累积的延迟
+				totalDelay := accumulatedDelay + delay
+				if totalDelay >= int64(g.MinDelayThreshold) {
+					sb.WriteString(fmt.Sprintf("  sleep(%d);\n", totalDelay))
+					accumulatedDelay = 0
+				}
+			} else {
+				// 累积延迟
+				accumulatedDelay += delay
 			}
 		}
 
-		switch ev.Type {
-		case model.EventTypeMouseMove:
-			sb.WriteString(fmt.Sprintf("  mouseMove(%d, %d); // 鼠标移动\n", ev.X, ev.Y))
+		// 生成事件代码
+		g.generateEvent(&sb, ev)
 
-		case model.EventTypeMouseDown:
-			btn := g.getMouseButtonName(ev.Button)
-			sb.WriteString(fmt.Sprintf("  mouseClick('%s'); // 鼠标按下\n", btn))
+		// 更新最后的事件类型
+		lastEventType = ev.Type
+	}
 
-		case model.EventTypeMouseUp:
-			// mouseup 通常不需要单独处理，因为 click 已经包含
-
-		case model.EventTypeWheel:
-			sb.WriteString(fmt.Sprintf("  mouseScroll(%d); // 鼠标滚动\n", ev.Delta))
-
-		case model.EventTypeKeyDown:
-			// 生成 KeyDown 事件
-			// 注意: keycode=0 的 KeyDown 已经在 capture.go 中与 KeyUp 配对并修正
-			keyName := g.getKeyName(ev.KeyCode)
-			sb.WriteString(fmt.Sprintf("  keyDown('%s'); // 键盘按下\n", keyName))
-
-		case model.EventTypeKeyUp:
-			keyName := g.getKeyName(ev.KeyCode)
-			sb.WriteString(fmt.Sprintf("  keyUp('%s'); // 键盘释放\n", keyName))
-
-		case model.EventTypeChars:
-			// 跳过字符输入事件，使用纯键盘事件（KeyDown/KeyUp）
-			// 这样可以支持任何输入法，包括中文
-		}
+	// 输出剩余的累积延迟
+	if accumulatedDelay >= int64(g.MinDelayThreshold) {
+		sb.WriteString(fmt.Sprintf("  sleep(%d);\n", accumulatedDelay))
 	}
 
 	sb.WriteString(`}
@@ -78,6 +102,64 @@ main();
 `)
 
 	return sb.String(), nil
+}
+
+// shouldAddSleep 判断是否需要添加 sleep
+func (g *Generator) shouldAddSleep(currentType, lastType model.EventType, delay, accumulated int64) bool {
+	// 延迟太小，不需要 sleep
+	if delay < int64(g.MinDelayThreshold) && accumulated == 0 {
+		return false
+	}
+
+	// 连续的键盘事件（同一按键的 KeyDown -> KeyUp）之间不需要 sleep
+	if currentType == model.EventTypeKeyUp && lastType == model.EventTypeKeyDown {
+		return false
+	}
+
+	// 连续的鼠标移动不需要 sleep
+	if currentType == model.EventTypeMouseMove && lastType == model.EventTypeMouseMove {
+		return false
+	}
+
+	// 连续的 KeyDown 事件（快速打字）可以累积延迟
+	if currentType == model.EventTypeKeyDown && lastType == model.EventTypeKeyDown {
+		return false
+	}
+
+	// 鼠标按下和释放之间不需要 sleep
+	if (currentType == model.EventTypeMouseUp && lastType == model.EventTypeMouseDown) ||
+		(currentType == model.EventTypeMouseDown && lastType == model.EventTypeMouseUp) {
+		return false
+	}
+
+	// 其他情况根据累积延迟判断
+	return (accumulated + delay) >= int64(g.MinDelayThreshold)
+}
+
+// generateEvent 生成单个事件代码
+func (g *Generator) generateEvent(sb *strings.Builder, ev model.Event) {
+	switch ev.Type {
+	case model.EventTypeMouseMove:
+		sb.WriteString(fmt.Sprintf("  mouseMove(%d, %d);\n", ev.X, ev.Y))
+
+	case model.EventTypeMouseDown:
+		btn := g.getMouseButtonName(ev.Button)
+		sb.WriteString(fmt.Sprintf("  mouseClick('%s');\n", btn))
+
+	case model.EventTypeMouseUp:
+		// mouseup 通常不需要单独处理，因为 click 已经包含
+
+	case model.EventTypeMouseWheel, model.EventTypeWheelUp, model.EventTypeWheelDown:
+		sb.WriteString(fmt.Sprintf("  mouseScroll(%d);\n", ev.Delta))
+
+	case model.EventTypeKeyDown:
+		keyName := g.getKeyName(ev.KeyCode)
+		sb.WriteString(fmt.Sprintf("  keyDown('%s');\n", keyName))
+
+	case model.EventTypeKeyUp:
+		keyName := g.getKeyName(ev.KeyCode)
+		sb.WriteString(fmt.Sprintf("  keyUp('%s');\n", keyName))
+	}
 }
 
 // optimizeEvents 优化事件序列
@@ -89,29 +171,27 @@ func (g *Generator) optimizeEvents(events []model.Event) []model.Event {
 	// 移除重复的 mousemove 事件（保留最新的）
 	optimized := make([]model.Event, 0)
 	lastMouseMove := model.Event{}
+	var lastMouseMoveExists bool
 
 	for _, ev := range events {
-		// 跳过字符输入事件，因为我们使用纯键盘事件
-		if ev.Type == model.EventTypeChars {
-			continue
-		}
-
 		// 处理鼠标移动事件
 		if ev.Type == model.EventTypeMouseMove {
 			// 如果是连续的 mousemove，只保留最后一个
 			lastMouseMove = ev
+			lastMouseMoveExists = true
 		} else {
 			// 如果有累积的 mousemove，先添加它
-			if lastMouseMove.Type != "" {
+			if lastMouseMoveExists {
 				optimized = append(optimized, lastMouseMove)
 				lastMouseMove = model.Event{}
+				lastMouseMoveExists = false
 			}
 			optimized = append(optimized, ev)
 		}
 	}
 
 	// 处理末尾的 mousemove
-	if lastMouseMove.Type != "" {
+	if lastMouseMoveExists {
 		optimized = append(optimized, lastMouseMove)
 	}
 
@@ -132,116 +212,15 @@ func (g *Generator) getMouseButtonName(btn model.MouseButton) string {
 	}
 }
 
-// getKeyName 获取按键名称
+// getKeyName 获取按键名称（使用统一的键码映射）
 func (g *Generator) getKeyName(keyCode int) string {
-	// 键值映射表
-	// gohook 返回的是扫描码 (Scan Code)，不是虚拟键码 (Virtual Key Code)
-	// 参考: https://www.win.tue.nl/~aeb/linux/kbd/scancodes-1.html
-	keyMap := map[int]string{
-		// 鼠标按钮
-		// 1: "left",
-		// 2: "right",
-		// 4: "middle",
+	// 使用 model 包中定义的统一键码映射
+	name := model.GetKeyNameByScanCode(keyCode)
 
-		// 特殊键 (扫描码)
-		1:  "escape",      // 01
-		2:  "1",           // 02
-		3:  "2",           // 03
-		4:  "3",           // 04
-		5:  "4",           // 05
-		6:  "5",           // 06
-		7:  "6",           // 07
-		8:  "7",           // 08
-		9:  "8",           // 09
-		10: "9",           // 0A
-		11: "0",           // 0B
-		12: "-",           // 0C
-		13: "=",           // 0D
-		14: "backspace",   // 0E
-		15: "tab",         // 0F
-		16: "q",           // 10
-		17: "w",           // 11
-		18: "e",           // 12
-		19: "r",           // 13
-		20: "t",           // 14
-		21: "y",           // 15
-		22: "u",           // 16
-		23: "i",           // 17
-		24: "o",           // 18
-		25: "p",           // 19
-		26: "[",           // 1A
-		27: "]",           // 1B
-		28: "enter",       // 1C
-		29: "left ctrl",   // 1D
-		30: "a",           // 1E
-		31: "s",           // 1F
-		32: "d",           // 20
-		33: "f",           // 21
-		34: "g",           // 22
-		35: "h",           // 23
-		36: "j",           // 24
-		37: "k",           // 25
-		38: "l",           // 26
-		39: ";",           // 27
-		40: "'",           // 28
-		41: "`",           // 29
-		42: "left shift",  // 2A
-		43: "\\",          // 2B
-		44: "z",           // 2C
-		45: "x",           // 2D
-		46: "c",           // 2E
-		47: "v",           // 2F
-		48: "b",           // 30
-		49: "n",           // 31
-		50: "m",           // 32
-		51: ",",           // 33
-		52: ".",           // 34
-		53: "/",           // 35
-		54: "right shift", // 36
-		55: "*",           // 37 (numpad)
-		56: "left alt",    // 38
-		57: "space",       // 39
-		58: "capslock",    // 3A
-		59: "f1",          // 3B
-		60: "f2",          // 3C
-		61: "f3",          // 3D
-		62: "f4",          // 3E
-		63: "f5",          // 3F
-		64: "f6",          // 40
-		65: "f7",          // 41
-		66: "f8",          // 42
-		67: "f9",          // 43
-		68: "f10",         // 44
-		69: "numlock",     // 45
-		70: "scrolllock",  // 46
-		87: "f11",         // 57
-		88: "f12",         // 58
-
-		// 扩展扫描码 (E0 前缀)
-		// 这些需要特殊处理，但为了简化，我们映射常用的
-		110: "home",       // E0 47
-		111: "up",         // E0 48
-		112: "pageup",     // E0 49
-		113: "left",       // E0 4B
-		114: "right",      // E0 4D
-		115: "end",        // E0 4F
-		116: "down",       // E0 50
-		117: "pagedown",   // E0 51
-		118: "insert",     // E0 52
-		119: "delete",     // E0 53
-		125: "left win",   // E0 5B
-		126: "right win",  // E0 5C
-		127: "menu",       // E0 5D
-		138: "right ctrl", // E0 1D
-		184: "right alt",  // E0 38
+	// 如果是未知键，记录警告
+	if strings.HasPrefix(name, "key_") {
+		fmt.Printf("[DEBUG] Unknown keycode: %d (0x%X)\n", keyCode, keyCode)
 	}
 
-	if name, ok := keyMap[keyCode]; ok {
-		return name
-	}
-
-	// 如果找不到映射，使用 keycode 的字符串表示
-	// 这样至少不会生成空字符串
-	fmt.Printf("[DEBUG] Unknown keycode: %d (0x%X)\n", keyCode, keyCode)
-	return fmt.Sprintf("key_%d", keyCode)
+	return model.NormalizeKeyName(name)
 }
