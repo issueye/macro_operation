@@ -125,24 +125,13 @@ func (e *Executor) registerRobotAPI(vm *goja.Runtime) error {
 	}
 
 	// 键盘输入 - 支持 Unicode（中文等）
-	keyType := func(keys string) error {
-		// 检查是否包含非 ASCII 字符（中文等）
-		hasUnicode := false
-		for _, r := range keys {
-			if r > 127 {
-				hasUnicode = true
-				break
-			}
-		}
+	keyType := func(str string) {
+		robotgo.TypeStr(str)
+	}
 
-		if hasUnicode {
-			// 使用剪贴板方式输入中文
-			return typeUnicode(keys)
-		} else {
-			// 使用普通方式输入 ASCII
-			robotgo.TypeStr(keys)
-			return nil
-		}
+	// 快捷键
+	keyShortcut := func(key string, keys ...interface{}) {
+		robotgo.KeyToggle(key, keys...)
 	}
 
 	// 键盘敲击
@@ -177,6 +166,7 @@ func (e *Executor) registerRobotAPI(vm *goja.Runtime) error {
 	vm.Set("keyUp", keyUp)
 	vm.Set("keyType", keyType)
 	vm.Set("keyTap", keyTap)
+	vm.Set("keyShortcut", keyShortcut) // 快捷键
 	vm.Set("sleep", sleep)
 	vm.Set("screenshot", screenshot)
 	vm.Set("log", log)

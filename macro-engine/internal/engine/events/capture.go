@@ -19,6 +19,7 @@ type Capture struct {
 	mutex          sync.RWMutex
 	eventCallback  func(model.Event)     // 实时事件回调
 	pendingKeyDown map[uint16]hook.Event // 待处理的 KeyDown 事件(keycode -> event)
+	lastContent    string                // 上一次剪贴板内容
 }
 
 // NewCapture 创建新的捕获器
@@ -107,19 +108,9 @@ func (c *Capture) listenEvents() {
 				continue
 			}
 
-			// 只记录 KeyDown 和 KeyUp 事件，忽略 KeyChar（字符输入事件）
-			// 这样可以记录原始的按键序列，适用于任何输入法
-			if ev.Kind == 4 {
-				// 跳过 KeyChar 事件（Kind=4）
-				// 调试：仍然打印以便了解情况
-				fmt.Printf("[DEBUG] Skipped KeyChar event - Keycode:%d, Keychar:%d (0x%X)\n",
-					ev.Keycode, ev.Keychar, ev.Keychar)
-				continue
-			}
-
 			// 处理键盘事件配对逻辑
 			var modelEvent model.Event
-			if ev.Kind == 3 { // KeyDown
+			if ev.Kind == hook.KeyDown { // KeyDown
 				// 如果 keycode 为 0,先记录下来,等待 KeyUp 事件来配对
 				if ev.Keycode == 0 {
 					// 使用特殊键 0 来标记,等待配对
@@ -129,7 +120,7 @@ func (c *Capture) listenEvents() {
 				}
 				// 正常的 KeyDown 事件,直接记录
 				modelEvent = convertToModelEvent(ev)
-			} else if ev.Kind == 5 { // KeyUp
+			} else if ev.Kind == hook.KeyUp { // KeyUp
 				// 检查是否有待处理的 keycode=0 的 KeyDown
 				if pendingEv, ok := c.pendingKeyDown[0]; ok {
 					// 找到配对,使用 KeyUp 的 keycode
@@ -155,12 +146,6 @@ func (c *Capture) listenEvents() {
 				modelEvent = convertToModelEvent(ev)
 			}
 
-			// 调试：打印记录的事件
-			if ev.Kind >= 3 && ev.Kind <= 5 {
-				fmt.Printf("[DEBUG] Recorded event - Kind:%d(%s), Keycode:%d (%s), Keychar:%d (0x%X)\n",
-					ev.Kind, getEventKindName(ev.Kind), ev.Keycode, getKeyCodeName(ev.Keycode), ev.Keychar, ev.Keychar)
-			}
-
 			c.mutex.Lock()
 			c.events = append(c.events, modelEvent)
 			c.mutex.Unlock()
@@ -171,54 +156,6 @@ func (c *Capture) listenEvents() {
 			}
 		}
 	}
-}
-
-// getEventKindName 获取事件类型名称
-func getEventKindName(kind uint8) string {
-	switch kind {
-	case 3:
-		return "KeyDown"
-	case 4:
-		return "KeyChar"
-	case 5:
-		return "KeyUp"
-	default:
-		return fmt.Sprintf("Unknown(%d)", kind)
-	}
-}
-
-// getKeyCodeName 获取按键名称（用于调试）
-func getKeyCodeName(keycode uint16) string {
-	// 常见按键映射
-	keyMap := map[uint16]string{
-		1:  "left",   // 鼠标左键
-		2:  "right",  // 鼠标右键
-		4:  "middle", // 鼠标中键
-		8:  "backspace",
-		9:  "tab",
-		13: "enter",
-		16: "shift",
-		17: "ctrl",
-		18: "alt",
-		27: "escape",
-		32: "space",
-		37: "left",
-		38: "up",
-		39: "right",
-		40: "down",
-		46: "delete",
-		// 字母键
-		65: "a", 66: "b", 67: "c", 68: "d", 69: "e", 70: "f", 71: "g", 72: "h",
-		73: "i", 74: "j", 75: "k", 76: "l", 77: "m", 78: "n", 79: "o", 80: "p",
-		81: "q", 82: "r", 83: "s", 84: "t", 85: "u", 86: "v", 87: "w", 88: "x",
-		89: "y", 90: "z",
-	}
-
-	if name, ok := keyMap[keycode]; ok {
-		return name
-	}
-
-	return fmt.Sprintf("key_%d", keycode)
 }
 
 // convertToModelEvent 将 gohook.Event 转换为 model.Event
@@ -280,24 +217,7 @@ func isValidEvent(ev hook.Event) bool {
 
 // getEventType 获取事件类型
 func getEventType(kind uint8) model.EventType {
-	switch kind {
-	case 3: // KeyDown
-		return model.EventTypeKeyDown
-	case 4: // KeyChar - 字符输入
-		return model.EventTypeChars
-	case 5: // KeyUp
-		return model.EventTypeKeyUp
-	case 8: // MouseDown
-		return model.EventTypeMouseDown
-	case 6: // MouseUp
-		return model.EventTypeMouseUp
-	case 9: // MouseMove
-		return model.EventTypeMouseMove
-	case 11: // MouseWheel
-		return model.EventTypeWheel
-	default:
-		return model.EventTypeKeyDown
-	}
+	return model.EventType(kind)
 }
 
 // getMouseButton 获取鼠标按钮
