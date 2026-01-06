@@ -153,12 +153,12 @@ func (g *Generator) generateEvent(sb *strings.Builder, ev model.Event) {
 		sb.WriteString(fmt.Sprintf("  mouseScroll(%d);\n", ev.Delta))
 
 	case model.EventTypeKeyDown:
-		keyName := g.getKeyName(ev.KeyCode)
+		keyName := g.getKeyName(ev.Chars)
 		sb.WriteString(fmt.Sprintf("  keyDown('%s');\n", keyName))
-
-	case model.EventTypeKeyUp:
-		keyName := g.getKeyName(ev.KeyCode)
 		sb.WriteString(fmt.Sprintf("  keyUp('%s');\n", keyName))
+		// case model.EventTypeKeyUp:
+		// 	keyName := g.getKeyName(ev.KeyCode)
+		// 	sb.WriteString(fmt.Sprintf("  keyUp('%s');\n", keyName))
 	}
 }
 

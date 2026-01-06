@@ -221,7 +221,7 @@ func (s *MacroEngineServer) GetCurrentEvents(ctx context.Context, req *pb.GetCur
 			Button:    int32(ev.Button),
 			Timestamp: ev.Timestamp,
 			Delta:     int32(ev.Delta),
-			Chars:     ev.Chars,
+			Chars:     model.GetKeyName(uint16(ev.Chars)),
 		})
 	}
 

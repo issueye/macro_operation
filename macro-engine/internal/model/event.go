@@ -1,6 +1,8 @@
 package model
 
 import (
+	"fmt"
+
 	hook "github.com/robotn/gohook"
 )
 
@@ -48,6 +50,10 @@ const (
 	WheelDown     = EventTypeWheelDown
 )
 
+func (e EventType) String() string {
+	return GetEventName(e)
+}
+
 // MouseButton 鼠标按钮
 type MouseButton int
 
@@ -61,7 +67,7 @@ const (
 type Event struct {
 	Type      EventType   `json:"type"`
 	KeyCode   int         `json:"key_code"`
-	Chars     string      `json:"chars"` // 字符输入（用于中文等）
+	Chars     int         `json:"chars"` // 字符输入（用于中文等）
 	X         int         `json:"x"`
 	Y         int         `json:"y"`
 	Button    MouseButton `json:"button"`
@@ -69,12 +75,17 @@ type Event struct {
 	Delta     int         `json:"delta"` // 滚轮增量
 }
 
+func (e Event) String() string {
+	return fmt.Sprintf("Event{Type: %s, KeyCode: %d, Chars: %s, X: %d, Y: %d, Button: %d, Timestamp: %d, Delta: %d}",
+		e.Type.String(), uint16(e.KeyCode), GetKeyName(uint16(e.Chars)), e.X, e.Y, e.Button, e.Timestamp, e.Delta)
+}
+
 func GetKeyCode(key string) uint16 {
 	return hook.KeychartoRawcode(key)
 }
 
 func GetKeyName(keyCode uint16) string {
-	return hook.RawcodetoKeychar(keyCode)
+	return fmt.Sprintf("%d_%s", keyCode, hook.RawcodetoKeychar(keyCode))
 }
 
 var eventNameMap = map[EventType]string{

@@ -102,12 +102,6 @@ func (c *Capture) listenEvents() {
 		case <-c.stopCh:
 			return
 		case ev := <-hookEvents:
-			// 过滤无效事件
-			if !isValidEvent(ev) {
-				fmt.Printf("[DEBUG] Filtered invalid event - Kind:%d, Keycode:%d\n", ev.Kind, ev.Keycode)
-				continue
-			}
-
 			// 处理键盘事件配对逻辑
 			var modelEvent model.Event
 			if ev.Kind == hook.KeyDown { // KeyDown
@@ -146,6 +140,9 @@ func (c *Capture) listenEvents() {
 				modelEvent = convertToModelEvent(ev)
 			}
 
+			// 打印事件
+			fmt.Printf("事件 -> %s\n", modelEvent.String())
+
 			c.mutex.Lock()
 			c.events = append(c.events, modelEvent)
 			c.mutex.Unlock()
@@ -163,6 +160,7 @@ func convertToModelEvent(ev hook.Event) model.Event {
 	event := model.Event{
 		Type:      getEventType(ev.Kind),
 		KeyCode:   int(ev.Keycode),
+		Chars:     int(ev.Rawcode),
 		X:         int(ev.X),
 		Y:         int(ev.Y),
 		Button:    getMouseButton(int(ev.Button)),
@@ -170,49 +168,7 @@ func convertToModelEvent(ev hook.Event) model.Event {
 		Delta:     int(ev.Amount),
 	}
 
-	// 处理字符输入事件（KeyChar = 4）
-	// Keychar 字段本身就是 rune 类型，可以直接转换为字符串
-	// 它包含了实际输入的字符，包括中文等多字节字符
-	if ev.Kind == 4 && ev.Keychar != 0 {
-		// 验证是否为有效的 Unicode 字符（非替换字符）
-		if ev.Keychar != 0xFFFD && ev.Keychar >= 32 && ev.Keychar <= 0x10FFFF {
-			event.Chars = string(ev.Keychar)
-		}
-	}
-
 	return event
-}
-
-// isValidEvent 检查事件是否有效
-func isValidEvent(ev hook.Event) bool {
-	// 过滤未知类型的事件（Kind 不在有效范围内）
-	validKinds := map[uint8]bool{
-		3:  true, // KeyDown
-		4:  true, // KeyChar
-		5:  true, // KeyUp
-		6:  true, // MouseUp
-		8:  true, // MouseDown
-		9:  true, // MouseMove
-		10: true, // MouseDrag
-		11: true, // MouseWheel
-	}
-
-	if !validKinds[ev.Kind] {
-		return false
-	}
-
-	// 对于键盘事件，放宽检查条件
-	// KeyDown 事件：允许 keycode 为 0（某些输入法会产生这种情况）
-	// KeyUp 事件：允许 keycode 为 0
-	if ev.Kind == 3 || ev.Kind == 5 { // KeyDown 或 KeyUp
-		// 不再过滤 keycode 为 0 的事件
-		// 只过滤明显异常的大 keycode（大于 65535）
-		if ev.Keycode > 65535 {
-			return false
-		}
-	}
-
-	return true
 }
 
 // getEventType 获取事件类型
